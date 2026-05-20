@@ -1,0 +1,63 @@
+/* ============================================================
+   KH DENTASCOPE UK — SERVICES PAGE STYLES
+   ============================================================ */
+
+.service-section { background: var(--colour-bg-white); }
+.service-section.alt-bg { background: var(--colour-bg-tinted); }
+
+.service-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+}
+.service-inner.reverse { direction: rtl; }
+.service-inner.reverse > * { direction: ltr; }
+
+.service-content h2 { margin-bottom: 1rem; }
+.service-content p { margin-bottom: 0.5rem; }
+
+.service-list {
+  list-style: none;
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.service-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: var(--colour-text-mid);
+}
+.service-list li::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  background: var(--colour-primary);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  margin-top: 2px;
+}
+
+.service-img-block {
+  width: 100%;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.cta-banner {
+  background: linear-gradient(135deg, var(--colour-primary) 0%, #0a6db8 100%);
+  color: #fff;
+}
+.cta-banner h2 { color: #fff; }
+
+@media (max-width: 768px) {
+  .service-inner,
+  .service-inner.reverse { grid-template-columns: 1fr; direction: ltr; }
+  .service-visual { order: -1; }
+}

@@ -1,0 +1,107 @@
+/* ============================================================
+   KH DENTASCOPE UK — PRODUCTS PAGE STYLES
+   ============================================================ */
+
+.alt-bg { background: var(--colour-bg-tinted); }
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+.product-card {
+  border: 1px solid var(--colour-border);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: #fff;
+  transition: transform var(--transition), box-shadow var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+.product-img-wrap { width: 100%; }
+.product-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+.product-brand {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--colour-primary);
+  background: var(--colour-accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  display: inline-block;
+}
+.product-card h3 { font-size: 1.05rem; }
+.product-card p { font-size: 0.88rem; flex: 1; }
+.product-placeholder-note {
+  font-size: 0.8rem !important;
+  color: var(--colour-secondary) !important;
+  font-style: italic;
+}
+
+/* Coming soon banner */
+.coming-soon-banner {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+  border: 2px dashed var(--colour-border);
+  border-radius: var(--border-radius-lg);
+  padding: 2.5rem;
+}
+.coming-soon-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+.coming-soon-icon { font-size: 2.5rem; line-height: 1; margin-top: 0.25rem; }
+.coming-soon-inner h3 { margin-bottom: 0.5rem; }
+
+/* Compare table */
+.compare-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+.compare-table th, .compare-table td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--colour-border);
+}
+.compare-table thead tr { background: var(--colour-primary); }
+.compare-table thead th { color: #fff; font-family: var(--font-heading); font-weight: var(--fw-heading); }
+.compare-table thead th:first-child { border-radius: var(--border-radius) 0 0 0; }
+.compare-table thead th:last-child  { border-radius: 0 var(--border-radius) 0 0; }
+.compare-table tbody tr:nth-child(even) { background: var(--colour-accent); }
+.compare-table tbody tr:hover { background: rgba(5,74,128,0.06); }
+.compare-table td:first-child { font-weight: var(--fw-medium); color: var(--colour-text-dark); }
+.compare-note {
+  margin-top: 0.75rem;
+  font-size: 0.85rem !important;
+  color: var(--colour-text-mid) !important;
+  text-align: center;
+}
+.compare-note a { color: var(--colour-primary); text-decoration: underline; }
+
+.cta-banner { background: linear-gradient(135deg, var(--colour-primary) 0%, #0a6db8 100%); color: #fff; }
+.cta-banner h2 { color: #fff; }
+
+@media (max-width: 1024px) { .products-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) {
+  .products-grid { grid-template-columns: 1fr; }
+  .coming-soon-inner { flex-direction: column; }
+}

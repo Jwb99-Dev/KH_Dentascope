@@ -1,0 +1,101 @@
+/* ============================================================
+   KH DENTASCOPE UK — ABOUT PAGE STYLES
+   ============================================================ */
+
+.alt-bg { background: var(--colour-bg-tinted); }
+
+/* Story section */
+.about-story {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+}
+.about-story-copy h2 { margin-bottom: 1rem; }
+.about-story-copy p  { margin-bottom: 0; }
+
+/* Values */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.value-card {
+  background: #fff;
+  border: 1px solid var(--colour-border);
+  border-radius: var(--border-radius-lg);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.value-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.value-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+.value-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+.value-card p  { font-size: 0.88rem; }
+
+/* Stats */
+.stats-section { background: var(--colour-primary); }
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  text-align: center;
+}
+.stat-item strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+.stat-item span {
+  font-size: 0.87rem;
+  color: rgba(255,255,255,0.7);
+  display: block;
+  line-height: 1.4;
+}
+
+/* Brands */
+.brands-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.brand-logo {
+  height: 48px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  filter: grayscale(1) opacity(0.6);
+  transition: filter var(--transition);
+}
+.brand-logo:hover { filter: grayscale(0) opacity(1); }
+.brand-placeholder {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-heading);
+  font-size: 1.2rem;
+  color: var(--colour-primary-75);
+  border: 2px dashed var(--colour-border);
+  padding: 0.6rem 2rem;
+  border-radius: var(--border-radius);
+}
+
+.cta-banner { background: linear-gradient(135deg, var(--colour-primary) 0%, #0a6db8 100%); color: #fff; }
+.cta-banner h2 { color: #fff; }
+
+@media (max-width: 1024px) {
+  .values-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .about-story { grid-template-columns: 1fr; }
+  .about-story-visual { order: -1; }
+}
+@media (max-width: 540px) {
+  .values-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr; }
+}
