@@ -295,7 +295,7 @@ p  { font-size: clamp(0.93rem, 1.2vw, 1.05rem); color: var(--colour-text-mid); l
 /* Dropdown */
 .nav-dropdown {
   position: absolute;
-  top: calc(100% + 14px);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-8px);
   background: #fff;
@@ -304,10 +304,19 @@ p  { font-size: clamp(0.93rem, 1.2vw, 1.05rem); color: var(--colour-text-mid); l
   box-shadow: var(--shadow-lg);
   min-width: 230px;
   padding: 0.5rem 0;
+  margin-top: 8px;
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
   pointer-events: none;
+}
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
 }
 .nav-item:hover .nav-dropdown,
 .nav-item:focus-within .nav-dropdown {
@@ -525,7 +534,7 @@ p  { font-size: clamp(0.93rem, 1.2vw, 1.05rem); color: var(--colour-text-mid); l
   transition: transform var(--transition), box-shadow var(--transition);
 }
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   box-shadow: var(--shadow-md);
 }
 

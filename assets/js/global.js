@@ -58,7 +58,7 @@ function initPreloader() {
     preloader.classList.add('hidden');
     document.body.style.overflow = '';
     triggerPageAnimations();
-  }, 2000);
+  }, 1000);
   document.body.style.overflow = 'hidden';
 }
 
