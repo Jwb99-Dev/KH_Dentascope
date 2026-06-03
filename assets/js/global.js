@@ -237,6 +237,8 @@ function buildFooter() {
         <div class="footer-legal">
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Use</a>
+          <span style="color:rgba(255,255,255,0.35);">|</span>
+          <span style="font-size:0.82rem;color:rgba(255,255,255,0.4);">Powered by <a href="https://sora-studios.co.uk" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.55);transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">Sora Studios</a></span>
         </div>
       </div>
     </div>`;
