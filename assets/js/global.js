@@ -20,16 +20,7 @@ const NAV_CONFIG = {
         { label: "Education & Institutions", href: "../services/index.html#education" },
       ]
     },
-    {
-      label: "Products",
-      href:  "../products/index.html",
-      dropdown: [
-        { label: "Dental Microscopes",        href: "../products/index.html#microscopes" },
-        { label: "Dental Loupes",             href: "../products/index.html#loupes"      },
-        { label: "Ophthalmic/ENT Microscopes",href: "../products/index.html#ophthalmic" },
-        { label: "Compare Models",            href: "../products/index.html#compare"    },
-      ]
-    },
+    { label: "Products", href: "../products/index.html" },
     {
       label: "Resources",
       href:  "../resources/index.html",

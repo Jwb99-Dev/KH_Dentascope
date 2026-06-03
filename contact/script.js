@@ -1,6 +1,6 @@
 /* ============================================================
    KH DENTASCOPE UK — CONTACT PAGE SCRIPT
-   Form validation and submission handling
+   Form validation + EmailJS submission
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,6 +10,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorMsg   = document.getElementById('form-error');
 
   if (!form) return;
+
+  /* ── URL PARAM AUTOFILL (from Products "Enquire Now" CTA) ──
+     Products page links here as:
+     contact/index.html?enquiry_type=product&message=I would like...
+     ──────────────────────────────────────────────────────── */
+  const params = new URLSearchParams(window.location.search);
+
+  const enquiryTypeParam = params.get('enquiry_type');
+  if (enquiryTypeParam) {
+    const selectEl = document.getElementById('enquiry-type');
+    if (selectEl) {
+      selectEl.value = enquiryTypeParam;
+      /* Brief highlight so the user notices it's been filled */
+      selectEl.style.transition = 'box-shadow 0.4s ease';
+      selectEl.style.boxShadow  = '0 0 0 3px rgba(5,74,128,0.18)';
+      setTimeout(() => { selectEl.style.boxShadow = ''; }, 1800);
+    }
+  }
+
+  const messageParam = params.get('message');
+  if (messageParam) {
+    const msgEl = document.getElementById('message');
+    if (msgEl) {
+      msgEl.value = messageParam;
+      /* Scroll to and briefly highlight the prefilled field */
+      setTimeout(() => {
+        msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        msgEl.style.transition = 'box-shadow 0.4s ease';
+        msgEl.style.boxShadow  = '0 0 0 3px rgba(5,74,128,0.18)';
+        setTimeout(() => { msgEl.style.boxShadow = ''; }, 1800);
+      }, 500);
+    }
+  }
 
   /* ── CLIENT-SIDE VALIDATION ─────────────────────────────── */
   function validateField(field) {
@@ -51,38 +84,38 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    /*
-      ── TO CONNECT A REAL BACKEND ──────────────────────────
-      Replace the block below with a fetch() call to your
-      preferred form handler (e.g. Formspree, Netlify Forms,
-      or your own server endpoint).
-
-      Example with Formspree:
-      const data = new FormData(form);
-      fetch('https://formspree.io/f/YOUR_ID', {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      }).then(res => {
-        if (res.ok) showSuccess();
-        else showError();
-      });
-      ────────────────────────────────────────────────────────
-    */
-
-    // Demo: simulate successful submission
     const submitBtn = form.querySelector('.contact-submit');
     submitBtn.textContent = 'Sending…';
     submitBtn.disabled = true;
 
-    setTimeout(() => {
-      form.reset();
-      form.querySelectorAll('.error').forEach(f => f.classList.remove('error'));
-      successMsg.hidden = false;
-      submitBtn.innerHTML = 'Send Enquiry <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
-      submitBtn.disabled = false;
-      successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 900);
+    /* ── EMAILJS SEND ──────────────────────────────────────── */
+    const templateParams = {
+      first_name:    form.first_name.value.trim(),
+      last_name:     form.last_name.value.trim(),
+      email:         form.email.value.trim(),
+      phone:         form.phone.value.trim()         || 'Not provided',
+      practice:      form.practice.value.trim()      || 'Not provided',
+      enquiry_type:  form.enquiry_type.value,
+      message:       form.message.value.trim(),
+    };
+
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+      .then(() => {
+        form.reset();
+        form.querySelectorAll('.error').forEach(f => f.classList.remove('error'));
+        successMsg.hidden = false;
+        submitBtn.innerHTML = 'Send Enquiry <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+        submitBtn.disabled = false;
+        successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      })
+      .catch((err) => {
+        console.error('EmailJS error:', err);
+        errorMsg.textContent = '⚠️ Something went wrong sending your message. Please try again or email us directly.';
+        errorMsg.hidden = false;
+        submitBtn.innerHTML = 'Send Enquiry <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+        submitBtn.disabled = false;
+        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
   });
 
 });
