@@ -264,6 +264,105 @@ const PRODUCTS = [
     }
   }
 
+,
+
+  /* ══ XPEDENT EXTRAS ══════════════════════════════════════ */
+  {
+    id:         "xpedent-ultrasonic-tips",
+    name:       "Multifunction Ultrasonic Tips",
+    model:      "Tip Collection",
+    brand:      "Xpedent",
+    category:   "Extras",
+    bestseller: false,
+    image:      "../Website Assets/Products/multifunction brush heads.jpg",
+    brandLogo:  "../Website Assets/Brand - Xpedent.png",
+    features: [
+      "Scaling, periodontic & endodontic tips available",
+      "Diamond-coated cavity preparation tips",
+      "Surgical tips for bone surgery & sinus lifting"
+    ],
+    pdfDownload: "../Website Assets/Product PDF/TipBook.pdf",
+    lightbox: {
+      description:
+        "A comprehensive range of ultrasonic tips covering every clinical discipline — from routine scaling through to complex surgical procedures.\n\nScaling\nPrecise work demands the right instrument. Our wide variety of scaling tips give you the freedom to choose the exact instrument for the situation, enabling complete periodontal cleaning.\n\nPeriodontics\nPerio tips are thin and designed for root planning and maintenance, providing the best access to furcation and curved roots.\n\nEndodontics\nEndodontic tips can be used across many areas. They are excellent for the removal of posts, removing dentine in pulp chambers, finding and widening orifices, preparing canals, removing broken instruments and cleaning prepared canals.\n\nCavity Preparation\nDiamond-coated tips designed to prepare cavities in the tooth before carrying out further dental work.\n\nSurgery Tips\nDesigned for a wide range of bone surgery applications, including sinus lifting and implantation procedures.",
+      specs: [
+        { label: "Scaling",             value: "Full variety for complete periodontal cleaning" },
+        { label: "Periodontics",        value: "Thin tips for root planning & furcation access" },
+        { label: "Endodontics",         value: "Post removal, orifice finding, canal preparation" },
+        { label: "Cavity Preparation",  value: "Diamond-coated tips" },
+        { label: "Surgery Tips",        value: "Sinus lifting & implantation procedures" },
+        { label: "Brand",               value: "Xpedent" }
+      ],
+      images: [
+        { src: "../Website Assets/Products/multifunction brush heads.jpg", caption: "Multifunction Ultrasonic Tips" }
+      ]
+    }
+  },
+
+  {
+    id:         "xpedent-ergo-loupes",
+    name:       "Ergo Loupes",
+    model:      "ErgoCarbonFlex",
+    brand:      "Xpedent",
+    category:   "Dental Loupes",
+    bestseller: false,
+    image:      "../Website Assets/Products/ErgoLoupes.jpg",
+    brandLogo:  "../Website Assets/Brand - Xpedent.png",
+    features: [
+      "Magnetic quick-swap 3.5× to 6.5× magnification",
+      "Ergonomic design — zero neck and shoulder strain",
+      "Ultra-light carbon fibre frame for all-day comfort"
+    ],
+    pdfDownload: "../Website Assets/Product PDF/Ergoflex Loupes.pdf",
+    lightbox: {
+      description:
+        "The Xpedent Ergo Loupes combine cutting-edge ergonomics with innovative magnetic optics — designed for clinicians who demand both precision and comfort throughout their working day.\n\nMagnetic Quick-Swap Magnification\nThe innovative magnetic design enables fast and secure switching — as effortless as fastening a buckle. Simply bring it close and it snaps into place, providing instant 3.5× to 6.5× magnification change. Easy to operate and ideal for a wide range of clinical scenarios.\n\nErgonomic Viewing Angle — Zero Neck and Shoulder Strain\nDesigned with ergonomics in mind, the Ergo Loupes align with the natural curve of the neck and shoulders, evenly distributing pressure. Comfortable for extended wear with no fatigue.\n\nDust-Free Optical Cavity — Crystal-Clear Vision\nAn advanced sealed optical chamber design keeps out impurities, maintaining lens clarity throughout use. Enjoy a pure, high-definition visual experience in every procedure.\n\nUltra-Light Carbon Fibre Frame\nCrafted from ultra-lightweight carbon fibre, the frame minimises pressure on the nose bridge and ears — perfect for all-day wear with no discomfort.\n\n4-in-1 Mirror\nVersatile mirror system included for enhanced visibility across clinical applications.",
+      specs: [
+        { label: "Magnification",       value: "3.5× to 6.5× — magnetic quick-swap" },
+        { label: "Frame Material",      value: "Ultra-light carbon fibre" },
+        { label: "Optical Chamber",     value: "Dust-free sealed design" },
+        { label: "Ergonomics",          value: "Aligns with natural neck and shoulder curve" },
+        { label: "Included",            value: "4-in-1 mirror" },
+        { label: "Brand",               value: "Xpedent" }
+      ],
+      images: [
+        { src: "../Website Assets/Products/ErgoLoupes.jpg", caption: "Xpedent Ergo Loupes" }
+      ]
+    }
+  },
+
+  {
+    id:         "xpedent-mc01-chair",
+    name:       "MC01 Microscope Chair",
+    model:      "MC01",
+    brand:      "Xpedent",
+    category:   "Extras",
+    bestseller: false,
+    image:      "../Website Assets/Products/MC01chairproductimage.png",
+    brandLogo:  "../Website Assets/Brand - Xpedent.png",
+    features: [
+      "Bionic saddle-shaped seat design",
+      "Naturally straightens posture — supports lumbar health",
+      "More thigh movement space for extended clinical sessions"
+    ],
+    pdfDownload: "../Website Assets/Product PDF/Microscope Master Chair.pdf",
+    lightbox: {
+      description:
+        "The MC01 Microscope Chair is designed according to the principles of bionics. Its specially engineered saddle-shaped seat encourages the back to naturally straighten when seated, helping to maintain lumbar health during long procedures.\n\nThe unique structure provides more space for thigh movement, reducing pressure and fatigue — giving a sensation of effortless, balanced seating throughout the working day.\n\nIdeal for use alongside dental microscopes, the MC01 supports correct posture and working height, complementing your clinical setup.",
+      specs: [
+        { label: "Design",          value: "Bionic saddle-shaped seat" },
+        { label: "Posture Support", value: "Natural spinal alignment — lumbar health" },
+        { label: "Mobility",        value: "Extended thigh movement space" },
+        { label: "Application",     value: "Dental microscope workstation use" },
+        { label: "Brand",           value: "Xpedent" }
+      ],
+      images: [
+        { src: "../Website Assets/Products/MC01chairproductimage.png", caption: "MC01 Microscope Chair" },
+        { src: "../Website Assets/Products/MC01 Colour Chair.png",     caption: "MC01 — Colour Options" }
+      ]
+    }
+  }
+
 ];
 
 /* ── BRAND META (logo paths & external URLs) ─────────────── */
