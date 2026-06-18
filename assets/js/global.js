@@ -7,37 +7,41 @@
 /* ── NAV LABELS (change here → updates all nav instances) ─── */
 const NAV_CONFIG = {
   cta:      "Get in Touch",
-  ctaHref:  "../contact/index.html",
+  ctaHref:  "contact/index.html",
   links: [
-    { label: "Home", href: "../home/index.html" },
+    { label: "Home", href: "index.html" },
     {
       label: "Services",
-      href:  "../services/index.html",
+      href:  "services/index.html",
       dropdown: [
-        { label: "Demos & Room Assessment",  href: "../services/index.html#demos"     },
-        { label: "Installation & Training",  href: "../services/index.html#install"   },
-        { label: "Servicing & Aftercare",    href: "../services/index.html#servicing" },
-        { label: "Education & Institutions", href: "../services/index.html#education" },
+        { label: "Demos & Room Assessment",  href: "services/index.html#demos"     },
+        { label: "Installation & Training",  href: "services/index.html#install"   },
+        { label: "Servicing & Aftercare",    href: "services/index.html#servicing" },
+        { label: "Education & Institutions", href: "services/index.html#education" },
       ]
     },
-    { label: "Products", href: "../products/index.html" },
+    { label: "Products", href: "products/index.html" },
     {
       label: "Resources",
-      href:  "../resources/index.html",
+      href:  "resources/index.html",
       dropdown: [
-        { label: "Brochures & Spec Sheets", href: "../resources/index.html#brochures" },
-        { label: "FAQs",                    href: "../resources/index.html#faqs"       },
-        { label: "Guides",                  href: "../resources/index.html#guides"     },
+        { label: "Brochures & Spec Sheets", href: "resources/index.html#brochures" },
+        { label: "FAQs",                    href: "resources/index.html#faqs"       },
+        { label: "Guides",                  href: "resources/index.html#guides"     },
       ]
     },
-    { label: "About", href: "../about/index.html" },
+    { label: "About", href: "about/index.html" },
   ]
 };
 
-/* Override relative paths for the home page */
-function fixHomeHref(href) {
-  if (window.location.pathname.includes('/home/')) return href;
-  return href;
+/* Compute prefix depending on whether current page is in a subdirectory */
+function getPrefix() {
+  const parts = window.location.pathname.split('/').filter(p => p.length > 0);
+  return parts.length > 1 ? '../' : '';
+}
+
+function resolve(href) {
+  return getPrefix() + href;
 }
 
 /* ── PRELOADER ─────────────────────────────────────────────── */
@@ -59,10 +63,11 @@ function buildNav() {
   if (!navEl) return;
 
   const currentPath = window.location.pathname;
+  const prefix = getPrefix();
 
   const logoHTML = `
-    <a class="nav-logo" href="../home/index.html" aria-label="KH Dentascope UK Home">
-      <img src="../Website Assets/Tooth Logo Nav Bar.png"
+    <a class="nav-logo" href="${resolve('index.html')}" aria-label="KH Dentascope UK Home">
+      <img src="${prefix}Website Assets/Tooth Logo Nav Bar.png"
            onerror="this.style.display='none'"
            alt="KH Dentascope UK Logo">
       <span class="nav-logo-text">KH Dentascope<span>UK</span></span>
@@ -71,29 +76,32 @@ function buildNav() {
   // Desktop menu
   let menuHTML = '<nav class="nav-menu" role="navigation" aria-label="Main navigation"><ul style="display:flex;align-items:center;gap:1.5rem;list-style:none;">';
   NAV_CONFIG.links.forEach(link => {
-    const isActive = currentPath.includes(link.href.replace('../','').split('/')[0]);
+    const linkBase = link.href.split('/')[0];
+    const isActive = (currentPath === '/' || currentPath.endsWith('/index.html')) && link.href === 'index.html'
+      ? true
+      : currentPath.includes('/' + linkBase + '/');
     if (link.dropdown) {
       menuHTML += `
         <li class="nav-item" role="none">
-          <a class="nav-link${isActive?' active':''}" href="${link.href}" role="menuitem">
+          <a class="nav-link${isActive?' active':''}" href="${resolve(link.href)}" role="menuitem">
             ${link.label}
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 6 8 10 12 6"/></svg>
           </a>
           <div class="nav-dropdown" role="menu">
-            ${link.dropdown.map(d=>`<a href="${d.href}" role="menuitem">${d.label}</a>`).join('')}
+            ${link.dropdown.map(d=>`<a href="${resolve(d.href)}" role="menuitem">${d.label}</a>`).join('')}
           </div>
         </li>`;
     } else {
       menuHTML += `
         <li class="nav-item" role="none">
-          <a class="nav-link${isActive?' active':''}" href="${link.href}" role="menuitem">${link.label}</a>
+          <a class="nav-link${isActive?' active':''}" href="${resolve(link.href)}" role="menuitem">${link.label}</a>
         </li>`;
     }
   });
   menuHTML += `</ul></nav>`;
 
   // CTA
-  const ctaHTML = `<a class="nav-cta" href="${NAV_CONFIG.ctaHref}">${NAV_CONFIG.cta}</a>`;
+  const ctaHTML = `<a class="nav-cta" href="${resolve(NAV_CONFIG.ctaHref)}">${NAV_CONFIG.cta}</a>`;
 
   // Hamburger
   const hambHTML = `
@@ -119,18 +127,18 @@ function buildNav() {
     if (link.dropdown) {
       mobileHTML += `
         <div class="mobile-nav-section">
-          <a class="mobile-nav-link" href="${link.href}">${link.label}</a>
+          <a class="mobile-nav-link" href="${resolve(link.href)}">${link.label}</a>
           <div class="mobile-nav-sub">
-            ${link.dropdown.map(d=>`<a href="${d.href}">${d.label}</a>`).join('')}
+            ${link.dropdown.map(d=>`<a href="${resolve(d.href)}">${d.label}</a>`).join('')}
           </div>
         </div>`;
     } else {
-      mobileHTML += `<a class="mobile-nav-link" href="${link.href}">${link.label}</a>`;
+      mobileHTML += `<a class="mobile-nav-link" href="${resolve(link.href)}">${link.label}</a>`;
     }
   });
   mobileHTML += `
       <div class="mobile-nav-cta">
-        <a class="btn btn-primary" href="${NAV_CONFIG.ctaHref}" style="width:100%;justify-content:center;">${NAV_CONFIG.cta}</a>
+        <a class="btn btn-primary" href="${resolve(NAV_CONFIG.ctaHref)}" style="width:100%;justify-content:center;">${NAV_CONFIG.cta}</a>
       </div>
     </div>`;
 
@@ -193,11 +201,12 @@ function triggerPageAnimations() {
 function buildFooter() {
   const footerEl = document.getElementById('site-footer');
   if (!footerEl) return;
+  const prefix = getPrefix();
   footerEl.innerHTML = `
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <img src="../Website Assets/Tooth Logo Nav Bar.png"
+          <img src="${prefix}Website Assets/Tooth Logo Nav Bar.png"
                onerror="this.style.display='none'"
                class="footer-brand-logo"
                alt="KH Dentascope UK">
@@ -207,28 +216,28 @@ function buildFooter() {
         <div class="footer-col">
           <h4>Services</h4>
           <ul>
-            <li><a href="../services/index.html#demos">Demos &amp; Room Assessment</a></li>
-            <li><a href="../services/index.html#install">Installation &amp; Training</a></li>
-            <li><a href="../services/index.html#servicing">Servicing &amp; Aftercare</a></li>
-            <li><a href="../services/index.html#education">Education &amp; Institutions</a></li>
+            <li><a href="${resolve('services/index.html#demos')}">Demos &amp; Room Assessment</a></li>
+            <li><a href="${resolve('services/index.html#install')}">Installation &amp; Training</a></li>
+            <li><a href="${resolve('services/index.html#servicing')}">Servicing &amp; Aftercare</a></li>
+            <li><a href="${resolve('services/index.html#education')}">Education &amp; Institutions</a></li>
           </ul>
         </div>
         <div class="footer-col">
           <h4>Products</h4>
           <ul>
-            <li><a href="../products/index.html#microscopes">Dental Microscopes</a></li>
-            <li><a href="../products/index.html#loupes">Dental Loupes</a></li>
-            <li><a href="../products/index.html#ophthalmic">Ophthalmic/ENT</a></li>
-            <li><a href="../products/index.html#compare">Compare Models</a></li>
+            <li><a href="${resolve('products/index.html#microscopes')}">Dental Microscopes</a></li>
+            <li><a href="${resolve('products/index.html#loupes')}">Dental Loupes</a></li>
+            <li><a href="${resolve('products/index.html#ophthalmic')}">Ophthalmic/ENT</a></li>
+            <li><a href="${resolve('products/index.html#compare')}">Compare Models</a></li>
           </ul>
         </div>
         <div class="footer-col">
           <h4>Company</h4>
           <ul>
-            <li><a href="../about/index.html">About Us</a></li>
-            <li><a href="../resources/index.html">Resources</a></li>
-            <li><a href="../contact/index.html">Contact</a></li>
-            <li><a href="../resources/index.html#faqs">FAQs</a></li>
+            <li><a href="${resolve('about/index.html')}">About Us</a></li>
+            <li><a href="${resolve('resources/index.html')}">Resources</a></li>
+            <li><a href="${resolve('contact/index.html')}">Contact</a></li>
+            <li><a href="${resolve('resources/index.html#faqs')}">FAQs</a></li>
           </ul>
         </div>
       </div>
