@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       message:       form.message.value.trim(),
     };
 
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+    emailjs.send('service_ftooeni', 'template_qb9sttm', templateParams)
       .then(() => {
         form.reset();
         form.querySelectorAll('.error').forEach(f => f.classList.remove('error'));
