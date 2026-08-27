@@ -53,12 +53,6 @@
     width:100%;height:82vh;border:1px solid #e0e5e9;border-radius:10px;background:#fff;
   }
 
-  .page-save-bar{
-    position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);
-    background:#1c2733;color:#fff;padding:.85rem 1.25rem;border-radius:10px;
-    display:flex;align-items:center;gap:1.25rem;box-shadow:0 8px 24px rgba(0,0,0,.25);
-    z-index:70;font-size:.88rem;
-  }
   .save-toast{
     position:fixed;left:1.5rem;bottom:1.5rem;z-index:70;font-size:.88rem;font-weight:600;
     padding:.7rem 1.1rem;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);
@@ -96,6 +90,44 @@
     display:none;
   }
   .drawer-backdrop.open{display:block;}
+
+  /* Apply Changes button + review lightbox */
+  .apply-changes-btn{
+    display:inline-flex;align-items:center;gap:.45rem;
+    background:#1c8a4c;color:#fff;border:none;
+    padding:.55rem 1.1rem;border-radius:7px;font-size:.85rem;font-weight:700;cursor:pointer;
+  }
+  .apply-changes-btn:hover{background:#166e3c;}
+  .apply-changes-btn svg{width:15px;height:15px;}
+  .apply-changes-btn .count-badge{
+    background:rgba(255,255,255,.25);border-radius:20px;padding:.1rem .55rem;font-size:.78rem;
+  }
+  .lightbox-backdrop{
+    position:fixed;inset:0;background:rgba(10,20,30,.55);z-index:80;
+    display:none;align-items:center;justify-content:center;padding:1.5rem;
+  }
+  .lightbox-backdrop.open{display:flex;}
+  .lightbox{
+    background:#fff;border-radius:12px;max-width:560px;width:100%;
+    max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);
+  }
+  .lightbox-header{padding:1.5rem 1.5rem 0.5rem;flex-shrink:0;}
+  .lightbox-header h2{margin:0 0 .3rem;font-size:1.2rem;}
+  .lightbox-header p{margin:0;color:#7a8894;font-size:.88rem;}
+  .lightbox-body{padding:0.5rem 1.5rem;overflow-y:auto;flex:1;}
+  .lightbox-body ul{list-style:none;padding:0;margin:0;}
+  .lightbox-body li{
+    display:flex;align-items:center;gap:.6rem;padding:.65rem 0;border-bottom:1px solid #eee;font-size:.9rem;
+  }
+  .lightbox-body li:last-child{border-bottom:none;}
+  .lightbox-body li .kind-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .lightbox-body li .kind-dot.text{background:#054A80;}
+  .lightbox-body li .kind-dot.image{background:#a05a00;}
+  .lightbox-body li .kind-dot.product{background:#1c8a4c;}
+  .lightbox-empty{color:#8a97a3;font-size:.9rem;padding:1rem 0;}
+  .lightbox-footer{
+    padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:space-between;gap:.6rem;flex-shrink:0;
+  }
   .drawer{
     position:fixed;top:0;right:0;bottom:0;width:520px;max-width:100%;
     background:#fff;z-index:61;box-shadow:-8px 0 30px rgba(0,0,0,.15);
@@ -208,10 +240,15 @@
     <div class="edit-topbar-actions">
       <button class="edit-toolbtn hidden" id="add-product-btn-topbar" onclick="openDrawer(null)">+ Add Product</button>
       <button class="edit-toolbtn" id="toggle-history-btn">Past Changes</button>
+      <button class="apply-changes-btn hidden" id="apply-changes-btn" onclick="openApplyLightbox()">
+        Apply Changes
+        <span class="count-badge" id="apply-count-badge">0</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
     </div>
   </div>
 
-  <p class="pages-hint">Use the real navigation menu below to move between pages. Click any heading, paragraph or image to edit it directly — or click a product tile to edit it. Changes are highlighted until you save.</p>
+  <p class="pages-hint">Use the real navigation menu below to move between pages. Click any heading, paragraph or image to edit it directly — or click a product tile to edit it. Nothing is published until you press Apply Changes.</p>
 
   <!-- ---- PAGES VIEW (every page, including Products, loads here) ---- -->
   <div id="pages-view">
@@ -221,13 +258,24 @@
   </div>
 
   <div id="save-status" class="save-toast"></div>
+</div>
 
-  <!-- Floating save bar for page edits -->
-  <div id="page-save-bar" class="page-save-bar hidden">
-    <span id="page-save-count">0 changes</span>
-    <div style="display:flex;gap:.6rem;">
-      <button class="edit-toolbtn" id="page-discard-btn">Discard</button>
-      <button class="btn btn-primary" id="page-save-btn">Save Page Changes</button>
+<!-- ============ APPLY CHANGES REVIEW LIGHTBOX ============ -->
+<div class="lightbox-backdrop" id="apply-lightbox-backdrop">
+  <div class="lightbox">
+    <div class="lightbox-header">
+      <h2>Review Changes</h2>
+      <p>Here's everything that will be published to your live website.</p>
+    </div>
+    <div class="lightbox-body">
+      <ul id="apply-changes-list"></ul>
+    </div>
+    <div class="lightbox-footer">
+      <button class="edit-toolbtn" id="apply-cancel-btn">Cancel</button>
+      <button class="apply-changes-btn" id="apply-confirm-btn">
+        <span id="apply-confirm-label">Apply Changes</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
     </div>
   </div>
 </div>
@@ -658,17 +706,23 @@ $("save-product-btn").addEventListener("click", async () => {
   if (editingIndex === null) PRODUCTS.push(product);
   else PRODUCTS[editingIndex] = product;
 
-  await commitCatalogue(`${editingIndex === null ? "Add" : "Update"} product: ${product.name}`);
+  productsDirty = true;
+  stageChange(`product:${id}`, "product", `${editingIndex === null ? "Add" : "Update"} product: ${product.name}`);
   closeDrawer();
+  showToast("Staged — click Apply Changes to publish.", "loading");
 });
 
 $("delete-product-btn").addEventListener("click", async () => {
   if (editingIndex === null) return;
-  const name = PRODUCTS[editingIndex].name;
-  if (!confirm(`Delete "${name}"? You can restore it later from Past Changes.`)) return;
+  const delProduct = PRODUCTS[editingIndex];
+  if (!confirm(`Delete "${delProduct.name}"? You can restore it later from Past Changes once applied.`)) return;
   PRODUCTS.splice(editingIndex, 1);
-  await commitCatalogue(`Delete product: ${name}`);
+  productsDirty = true;
+  // A pending add/update for this same product no longer makes sense — replace it with the delete.
+  pendingChanges = pendingChanges.filter(c => c.id !== `product:${delProduct.id}`);
+  stageChange(`product:${delProduct.id}:deleted`, "product", `Delete product: ${delProduct.name}`);
   closeDrawer();
+  showToast("Staged — click Apply Changes to publish.", "loading");
 });
 
 function showToast(text, type) {
@@ -680,23 +734,17 @@ function showToast(text, type) {
 }
 
 async function commitCatalogue(message) {
-  showToast("Saving…", "loading");
-  try {
-    const content = serialiseCatalogue(PRODUCTS);
-    await api("/save", {
-      method: "POST",
-      body: JSON.stringify({ password: PASSWORD, content, sha: CURRENT_SHA, message })
-    });
-    showToast("Saved successfully.", "success");
-    await loadProducts();
-    // If we're currently looking at the Products page, refresh it so the
-    // real tiles reflect the change immediately.
-    if (loadedPageKey === "products") {
-      loadedPageKey = null; // force loadPageIntoFrame to actually reload
-      loadPageIntoFrame("products");
-    }
-  } catch (err) {
-    showToast("Save failed: " + err.message, "error");
+  const content = serialiseCatalogue(PRODUCTS);
+  await api("/save", {
+    method: "POST",
+    body: JSON.stringify({ password: PASSWORD, content, sha: CURRENT_SHA, message })
+  });
+  await loadProducts();
+  // If we're currently looking at the Products page, refresh it so the
+  // real tiles reflect the change immediately.
+  if (loadedPageKey === "products") {
+    loadedPageKey = null; // force loadPageIntoFrame to actually reload
+    loadPageIntoFrame("products");
   }
 }
 
@@ -739,13 +787,16 @@ $("page-frame").addEventListener("load", onPageFrameLoad);
 
 function loadPageIntoFrame(key) {
   if (key === loadedPageKey) return; // already showing this page, don't wipe edits
+  if (Object.keys(pendingPageChanges).length > 0) {
+    if (!confirm("You have edits on this page that haven't been applied yet. Leave and discard them?")) return;
+    unstageByPrefix(`page:${loadedPageKey}:`);
+    pendingPageChanges = {};
+  }
   const page = PAGES[key];
   if (!page) return;
   loadedPageKey = key;
   currentPagePath = page.path;
   currentPageDepth = page.depth;
-  pendingPageChanges = {};
-  updateSaveBar();
   $("page-frame").src = page.src;
 }
 
@@ -852,7 +903,7 @@ function injectEditableBehaviour(doc) {
         el.classList.remove("kh-editing");
         el.classList.add("kh-changed");
         pendingPageChanges[id] = { type: "html", value: el.innerHTML };
-        updateSaveBar();
+        stageChange(`page:${loadedPageKey}:${id}`, "page-text", el.getAttribute("data-edit-label") || id);
       });
     }
   });
@@ -890,63 +941,103 @@ pageImageFileInput.addEventListener("change", async (e) => {
       pendingPageChanges[id] = { type: "image", value: pathForRoot };
     }
     target.classList.add("kh-changed");
-    updateSaveBar();
+    stageChange(`page:${loadedPageKey}:${id}`, "page-image", target.getAttribute("data-edit-label") || id);
   } catch (err) {
     alert("Image upload failed: " + err.message);
   }
   pageImageFileInput.value = "";
 });
 
-function updateSaveBar() {
-  const count = Object.keys(pendingPageChanges).length;
-  $("page-save-bar").classList.toggle("hidden", count === 0);
-  $("page-save-count").textContent = `${count} change${count === 1 ? "" : "s"}`;
+/* ===================================================================
+   UNIFIED "APPLY CHANGES" STAGING + REVIEW LIGHTBOX
+   =================================================================== */
+let pendingChanges = []; // [{ id, kind: 'page-text'|'page-image'|'product', label }]
+let productsDirty = false;
+
+function stageChange(id, kind, label) {
+  const existing = pendingChanges.find(c => c.id === id);
+  if (existing) { existing.kind = kind; existing.label = label; }
+  else { pendingChanges.push({ id, kind, label }); }
+  updateApplyButton();
 }
 
-$("page-discard-btn").addEventListener("click", () => {
-  if (!confirm("Discard your unsaved changes on this page?")) return;
-  $("page-frame").src = $("page-frame").src; // reload, dropping in-memory edits
-  pendingPageChanges = {};
-  updateSaveBar();
+function unstageByPrefix(prefix) {
+  pendingChanges = pendingChanges.filter(c => !c.id.startsWith(prefix));
+  updateApplyButton();
+}
+
+function updateApplyButton() {
+  const count = pendingChanges.length;
+  $("apply-changes-btn").classList.toggle("hidden", count === 0);
+  $("apply-count-badge").textContent = count;
+}
+
+function openApplyLightbox() {
+  const list = $("apply-changes-list");
+  if (!pendingChanges.length) {
+    list.innerHTML = '<li class="lightbox-empty">No changes to review yet.</li>';
+  } else {
+    list.innerHTML = pendingChanges.map(c => `
+      <li><span class="kind-dot ${c.kind === 'product' ? 'product' : (c.kind === 'page-image' ? 'image' : 'text')}"></span>${c.label}</li>
+    `).join("");
+  }
+  $("apply-lightbox-backdrop").classList.add("open");
+}
+$("apply-cancel-btn").addEventListener("click", () => $("apply-lightbox-backdrop").classList.remove("open"));
+$("apply-lightbox-backdrop").addEventListener("click", (e) => {
+  if (e.target.id === "apply-lightbox-backdrop") $("apply-lightbox-backdrop").classList.remove("open");
 });
 
-$("page-save-btn").addEventListener("click", async () => {
-  $("page-save-btn").disabled = true;
-  $("page-save-btn").textContent = "Saving…";
-  try {
-    const data = await api(`/page?path=${encodeURIComponent(currentPagePath)}`);
-    const parser = new DOMParser();
-    const parsedDoc = parser.parseFromString(data.content, "text/html");
+async function savePageChanges() {
+  const data = await api(`/page?path=${encodeURIComponent(currentPagePath)}`);
+  const parser = new DOMParser();
+  const parsedDoc = parser.parseFromString(data.content, "text/html");
 
-    for (const [id, change] of Object.entries(pendingPageChanges)) {
-      const el = parsedDoc.querySelector(`[data-edit="${id}"]`);
-      if (!el) continue;
-      if (change.type === "image") el.setAttribute("src", change.value);
-      else el.innerHTML = change.value;
-    }
-
-    const newHtml = "<!DOCTYPE html>\n" + parsedDoc.documentElement.outerHTML;
-    await api("/save-page", {
-      method: "POST",
-      body: JSON.stringify({
-        password: PASSWORD,
-        path: currentPagePath,
-        content: newHtml,
-        sha: data.sha,
-        message: `Update ${currentPagePath} via edit tool (${Object.keys(pendingPageChanges).length} change(s))`
-      })
-    });
-
-    pendingPageChanges = {};
-    updateSaveBar();
-    $("page-frame").src = $("page-frame").src; // reload to show the committed version
-    $("page-save-btn").textContent = "Save Page Changes";
-    $("page-save-btn").disabled = false;
-  } catch (err) {
-    alert("Save failed: " + err.message);
-    $("page-save-btn").textContent = "Save Page Changes";
-    $("page-save-btn").disabled = false;
+  for (const [id, change] of Object.entries(pendingPageChanges)) {
+    const el = parsedDoc.querySelector(`[data-edit="${id}"]`);
+    if (!el) continue;
+    if (change.type === "image") el.setAttribute("src", change.value);
+    else el.innerHTML = change.value;
   }
+
+  const newHtml = "<!DOCTYPE html>\n" + parsedDoc.documentElement.outerHTML;
+  await api("/save-page", {
+    method: "POST",
+    body: JSON.stringify({
+      password: PASSWORD,
+      path: currentPagePath,
+      content: newHtml,
+      sha: data.sha,
+      message: `Update ${currentPagePath} via edit tool (${Object.keys(pendingPageChanges).length} change(s))`
+    })
+  });
+
+  pendingPageChanges = {};
+  $("page-frame").src = $("page-frame").src; // reload to show the committed version
+}
+
+$("apply-confirm-btn").addEventListener("click", async () => {
+  $("apply-confirm-btn").disabled = true;
+  const label = $("apply-confirm-label");
+  label.textContent = "Applying…";
+  try {
+    if (Object.keys(pendingPageChanges).length) {
+      await savePageChanges();
+    }
+    if (productsDirty) {
+      const summary = pendingChanges.filter(c => c.kind === "product").map(c => c.label).join("; ") || "Update products";
+      await commitCatalogue(summary);
+      productsDirty = false;
+    }
+    pendingChanges = [];
+    updateApplyButton();
+    $("apply-lightbox-backdrop").classList.remove("open");
+    showToast("Changes published successfully.", "success");
+  } catch (err) {
+    showToast("Apply failed: " + err.message, "error");
+  }
+  label.textContent = "Apply Changes";
+  $("apply-confirm-btn").disabled = false;
 });
 
 /* ===================================================================
