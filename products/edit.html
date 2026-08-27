@@ -32,6 +32,34 @@
   }
   .edit-toolbtn:hover{background:#f6f8fa;}
 
+  .mode-tab{
+    border:none;background:none;color:#7a8894;font-weight:700;font-size:.85rem;
+    padding:.5rem .9rem;border-radius:7px;cursor:pointer;
+  }
+  .mode-tab.active{background:rgba(5,74,128,.08);color:var(--colour-primary,#054A80);}
+  .mode-tab:hover{background:rgba(5,74,128,.06);}
+
+  .pages-picker{display:flex;gap:.5rem;flex-wrap:wrap;padding:1rem 1.5rem 0;}
+  .page-pick-btn{
+    border:1px solid #d8dee3;background:#fff;padding:.5rem 1rem;border-radius:20px;
+    font-size:.85rem;font-weight:600;cursor:pointer;color:#28323c;
+  }
+  .page-pick-btn.active{background:var(--colour-primary,#054A80);color:#fff;border-color:var(--colour-primary,#054A80);}
+  .page-pick-btn:disabled{color:#b7c0c8;cursor:not-allowed;}
+  .page-pick-btn .soon{font-size:.65rem;font-weight:700;margin-left:.3rem;color:#b7c0c8;}
+  .pages-hint{padding:.6rem 1.5rem 0;font-size:.85rem;color:#7a8894;}
+  .page-frame-wrap{padding:1rem 1.5rem 3rem;}
+  #page-frame{
+    width:100%;height:82vh;border:1px solid #e0e5e9;border-radius:10px;background:#fff;
+  }
+
+  .page-save-bar{
+    position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);
+    background:#1c2733;color:#fff;padding:.85rem 1.25rem;border-radius:10px;
+    display:flex;align-items:center;gap:1.25rem;box-shadow:0 8px 24px rgba(0,0,0,.25);
+    z-index:70;font-size:.88rem;
+  }
+
   .edit-tile-wrap{position:relative;cursor:pointer;transition:transform .15s ease;}
   .edit-tile-wrap:hover{transform:translateY(-3px);}
   .edit-tile-wrap:hover .product-tile{box-shadow:0 10px 30px rgba(5,74,128,.18);outline:2px solid var(--colour-primary,#054A80);outline-offset:2px;}
@@ -158,38 +186,66 @@
   </div>
 </div>
 
-<!-- ============ MAIN EDIT SCREEN (mirrors the real products page) ============ -->
+<!-- ============ MAIN EDIT SCREEN ============ -->
 <div id="main-screen" class="hidden edit-page-content">
 
   <div class="edit-topbar">
     <div class="edit-topbar-title">
-      <strong>Products</strong>
+      <strong>KH Dentascope</strong>
       <span class="tag">EDIT MODE</span>
     </div>
     <div class="edit-topbar-actions">
+      <button class="mode-tab active" id="tab-products-btn" onclick="switchMode('products')">Products</button>
+      <button class="mode-tab" id="tab-pages-btn" onclick="switchMode('pages')">Pages</button>
       <button class="edit-toolbtn" id="toggle-history-btn">Past Changes</button>
     </div>
   </div>
 
-  <main class="page-content">
-    <div class="page-header" style="padding-bottom:1rem;">
-      <div class="container">
-        <span class="eyebrow">Editing</span>
-        <h1>Your Products</h1>
-        <p>Click any product to edit it. Changes save straight to your website.</p>
-      </div>
-    </div>
-
-    <section class="products-section section-pad" style="padding-top:0;">
-      <div class="container">
-        <div class="products-grid" id="products-grid">
-          <div class="loading-text">Loading products…</div>
+  <!-- ---- PRODUCTS VIEW ---- -->
+  <div id="products-view">
+    <main class="page-content">
+      <div class="page-header" style="padding-bottom:1rem;">
+        <div class="container">
+          <span class="eyebrow">Editing</span>
+          <h1>Your Products</h1>
+          <p>Click any product to edit it. Changes save straight to your website.</p>
         </div>
       </div>
-    </section>
-  </main>
 
-  <div id="save-status" class="container" style="padding-bottom:2rem;"></div>
+      <section class="products-section section-pad" style="padding-top:0;">
+        <div class="container">
+          <div class="products-grid" id="products-grid">
+            <div class="loading-text">Loading products…</div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="save-status" class="container" style="padding-bottom:2rem;"></div>
+  </div>
+
+  <!-- ---- PAGES VIEW ---- -->
+  <div id="pages-view" class="hidden">
+    <div class="pages-picker">
+      <button class="page-pick-btn active" data-page="home" onclick="selectPage('home', this)">Home</button>
+      <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">About <span class="soon">soon</span></button>
+      <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">Services <span class="soon">soon</span></button>
+      <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">Contact <span class="soon">soon</span></button>
+      <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">Resources <span class="soon">soon</span></button>
+    </div>
+    <p class="pages-hint">Click any heading, paragraph or image below to edit it directly. Changes are highlighted until you save.</p>
+    <div class="page-frame-wrap">
+      <iframe id="page-frame" src="../index.html" title="Home page editor"></iframe>
+    </div>
+  </div>
+
+  <!-- Floating save bar for page edits -->
+  <div id="page-save-bar" class="page-save-bar hidden">
+    <span id="page-save-count">0 changes</span>
+    <div style="display:flex;gap:.6rem;">
+      <button class="edit-toolbtn" id="page-discard-btn">Discard</button>
+      <button class="btn btn-primary" id="page-save-btn">Save Page Changes</button>
+    </div>
+  </div>
 </div>
 
 <!-- ============ HISTORY DRAWER ============ -->
@@ -666,6 +722,172 @@ async function commitCatalogue(message) {
     $("save-status").innerHTML = `<p class="status-msg error">Save failed: ${err.message}</p>`;
   }
 }
+
+/* ===================================================================
+   MODE SWITCHING (Products / Pages)
+   =================================================================== */
+function switchMode(mode) {
+  $("tab-products-btn").classList.toggle("active", mode === "products");
+  $("tab-pages-btn").classList.toggle("active", mode === "pages");
+  $("products-view").classList.toggle("hidden", mode !== "products");
+  $("pages-view").classList.toggle("hidden", mode !== "pages");
+  if (mode === "pages" && !pageEditorInitialised) {
+    $("page-frame").addEventListener("load", onPageFrameLoad);
+  }
+}
+
+/* ===================================================================
+   VISUAL PAGE EDITOR
+   =================================================================== */
+let currentPagePath = "index.html";
+let pageEditorInitialised = false;
+let pendingPageChanges = {}; // { "home.hero.heading": { type: "text", value: "..." } }
+
+function selectPage(key, btn) {
+  document.querySelectorAll(".page-pick-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  // Only "home" is wired up for now; others are disabled in the UI.
+  currentPagePath = "index.html";
+  pendingPageChanges = {};
+  updateSaveBar();
+  $("page-frame").src = "../index.html";
+}
+
+function onPageFrameLoad() {
+  pageEditorInitialised = true;
+  const frame = $("page-frame");
+  let doc;
+  try { doc = frame.contentDocument; } catch (e) {
+    console.error("Can't access page frame (must be same-origin as the edit tool)", e);
+    return;
+  }
+  // Give the page's own scripts (nav build, fade-ins) a moment to finish.
+  setTimeout(() => injectEditableBehaviour(doc), 400);
+}
+
+function injectEditableBehaviour(doc) {
+  // Visual affordance for anything tagged data-edit
+  const style = doc.createElement("style");
+  style.textContent = `
+    [data-edit]{outline-offset:3px;transition:outline .1s ease;cursor:pointer;}
+    [data-edit]:hover{outline:2px dashed #054A80;}
+    [data-edit].kh-editing{outline:2px solid #054A80 !important;background:rgba(5,74,128,.05);}
+    [data-edit].kh-changed{outline:2px solid #1c8a4c !important;}
+    [data-edit-type="image"]:hover{outline:2px dashed #054A80;filter:brightness(.9);}
+  `;
+  doc.head.appendChild(style);
+
+  doc.querySelectorAll("[data-edit]").forEach(el => {
+    const id = el.getAttribute("data-edit");
+    const isImage = el.getAttribute("data-edit-type") === "image";
+
+    if (isImage) {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.pageImageUploadTarget = el;
+        $("page-image-file-input").click();
+      });
+    } else {
+      el.addEventListener("click", (e) => {
+        if (el.isContentEditable) return; // already editing
+        e.preventDefault();
+        el.setAttribute("contenteditable", "true");
+        el.classList.add("kh-editing");
+        el.focus();
+      });
+      el.addEventListener("blur", () => {
+        el.removeAttribute("contenteditable");
+        el.classList.remove("kh-editing");
+        el.classList.add("kh-changed");
+        pendingPageChanges[id] = { type: "html", value: el.innerHTML };
+        updateSaveBar();
+      });
+    }
+  });
+}
+
+// Hidden file input (in the parent doc) used for image edits inside the iframe
+const pageImageFileInput = document.createElement("input");
+pageImageFileInput.type = "file";
+pageImageFileInput.accept = "image/*";
+pageImageFileInput.id = "page-image-file-input";
+pageImageFileInput.className = "hidden";
+document.body.appendChild(pageImageFileInput);
+
+pageImageFileInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  const target = window.pageImageUploadTarget;
+  if (!file || !target) return;
+  try {
+    const base64Data = await fileToBase64(file);
+    const result = await api("/upload-image", {
+      method: "POST",
+      body: JSON.stringify({ password: PASSWORD, filename: file.name, base64Data })
+    });
+    // Image sits one folder deeper than /products/, so strip one "../"
+    const pathForRoot = result.path.replace(/^\.\.\//, "");
+    target.src = pathForRoot;
+    target.classList.add("kh-changed");
+    const id = target.getAttribute("data-edit");
+    pendingPageChanges[id] = { type: "image", value: pathForRoot };
+    updateSaveBar();
+  } catch (err) {
+    alert("Image upload failed: " + err.message);
+  }
+  pageImageFileInput.value = "";
+});
+
+function updateSaveBar() {
+  const count = Object.keys(pendingPageChanges).length;
+  $("page-save-bar").classList.toggle("hidden", count === 0);
+  $("page-save-count").textContent = `${count} change${count === 1 ? "" : "s"}`;
+}
+
+$("page-discard-btn").addEventListener("click", () => {
+  if (!confirm("Discard your unsaved changes on this page?")) return;
+  $("page-frame").src = $("page-frame").src; // reload, dropping in-memory edits
+  pendingPageChanges = {};
+  updateSaveBar();
+});
+
+$("page-save-btn").addEventListener("click", async () => {
+  $("page-save-btn").disabled = true;
+  $("page-save-btn").textContent = "Saving…";
+  try {
+    const data = await api(`/page?path=${encodeURIComponent(currentPagePath)}`);
+    const parser = new DOMParser();
+    const parsedDoc = parser.parseFromString(data.content, "text/html");
+
+    for (const [id, change] of Object.entries(pendingPageChanges)) {
+      const el = parsedDoc.querySelector(`[data-edit="${id}"]`);
+      if (!el) continue;
+      if (change.type === "image") el.setAttribute("src", change.value);
+      else el.innerHTML = change.value;
+    }
+
+    const newHtml = "<!DOCTYPE html>\n" + parsedDoc.documentElement.outerHTML;
+    await api("/save-page", {
+      method: "POST",
+      body: JSON.stringify({
+        password: PASSWORD,
+        path: currentPagePath,
+        content: newHtml,
+        sha: data.sha,
+        message: `Update ${currentPagePath} via edit tool (${Object.keys(pendingPageChanges).length} change(s))`
+      })
+    });
+
+    pendingPageChanges = {};
+    updateSaveBar();
+    $("page-frame").src = $("page-frame").src; // reload to show the committed version
+    $("page-save-btn").textContent = "Save Page Changes";
+    $("page-save-btn").disabled = false;
+  } catch (err) {
+    alert("Save failed: " + err.message);
+    $("page-save-btn").textContent = "Save Page Changes";
+    $("page-save-btn").disabled = false;
+  }
+});
 
 /* ===================================================================
    VERSION HISTORY
