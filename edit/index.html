@@ -59,6 +59,15 @@
     display:flex;align-items:center;gap:1.25rem;box-shadow:0 8px 24px rgba(0,0,0,.25);
     z-index:70;font-size:.88rem;
   }
+  .save-toast{
+    position:fixed;left:1.5rem;bottom:1.5rem;z-index:70;font-size:.88rem;font-weight:600;
+    padding:.7rem 1.1rem;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);
+    display:none;
+  }
+  .save-toast.show{display:block;}
+  .save-toast.success{background:#e8f6ee;color:#1c8a4c;}
+  .save-toast.error{background:#fdecea;color:#c0392b;}
+  .save-toast.loading{background:#eef1f4;color:#28323c;}
 
   .edit-tile-wrap{position:relative;cursor:pointer;transition:transform .15s ease;}
   .edit-tile-wrap:hover{transform:translateY(-3px);}
@@ -197,41 +206,21 @@
       <span class="tag">EDIT MODE</span>
     </div>
     <div class="edit-topbar-actions">
-      <button class="edit-toolbtn" onclick="selectSection('home')">Home</button>
+      <button class="edit-toolbtn hidden" id="add-product-btn-topbar" onclick="openDrawer(null)">+ Add Product</button>
       <button class="edit-toolbtn" id="toggle-history-btn">Past Changes</button>
     </div>
   </div>
 
-  <p class="pages-hint">Use the real navigation menu below to move between pages. Click any heading, paragraph or image to edit it directly. Changes are highlighted until you save.</p>
+  <p class="pages-hint">Use the real navigation menu below to move between pages. Click any heading, paragraph or image to edit it directly — or click a product tile to edit it. Changes are highlighted until you save.</p>
 
-  <!-- ---- PRODUCTS VIEW ---- -->
-  <div id="products-view" class="hidden">
-    <main class="page-content">
-      <div class="page-header" style="padding-bottom:1rem;">
-        <div class="container">
-          <span class="eyebrow">Editing</span>
-          <h1>Your Products</h1>
-          <p>Click any product to edit it. Changes save straight to your website.</p>
-        </div>
-      </div>
-
-      <section class="products-section section-pad" style="padding-top:0;">
-        <div class="container">
-          <div class="products-grid" id="products-grid">
-            <div class="loading-text">Loading products…</div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <div id="save-status" class="container" style="padding-bottom:2rem;"></div>
-  </div>
-
-  <!-- ---- PAGES VIEW ---- -->
+  <!-- ---- PAGES VIEW (every page, including Products, loads here) ---- -->
   <div id="pages-view">
     <div class="page-frame-wrap">
-      <iframe id="page-frame" src="../index.html" title="Home page editor"></iframe>
+      <iframe id="page-frame" src="../index.html" title="Page editor"></iframe>
     </div>
   </div>
+
+  <div id="save-status" class="save-toast"></div>
 
   <!-- Floating save bar for page edits -->
   <div id="page-save-bar" class="page-save-bar hidden">
@@ -426,17 +415,15 @@ $("login-btn").addEventListener("click", async () => {
 $("password-input").addEventListener("keydown", e => { if (e.key === "Enter") $("login-btn").click(); });
 
 /* ===================================================================
-   LOAD + RENDER PRODUCT GRID (mirrors the real site's tile markup)
+   LOAD PRODUCT DATA (real tiles now render on the live page in the iframe)
    =================================================================== */
 async function loadProducts() {
-  $("products-grid").innerHTML = '<div class="loading-text">Loading products…</div>';
   try {
     const data = await api("/products");
     CURRENT_SHA = data.sha;
     PRODUCTS = parseCatalogue(data.content);
-    renderGrid();
   } catch (err) {
-    $("products-grid").innerHTML = `<div class="status-msg error">Couldn't load products: ${err.message}</div>`;
+    console.error("Couldn't load products:", err.message);
   }
 }
 
@@ -459,25 +446,6 @@ function tileMarkup(p) {
       <h3 class="product-tile-name">${p.name || 'Untitled product'}</h3>
       <span class="product-tile-model">${p.model || ''}</span>
       <ul class="product-tile-features">${featuresHTML}</ul>
-    </div>`;
-}
-
-function renderGrid() {
-  const grid = $("products-grid");
-  if (!PRODUCTS.length) {
-    grid.innerHTML = '';
-  } else {
-    grid.innerHTML = PRODUCTS.map((p, i) => `
-      <div class="edit-tile-wrap" onclick="openDrawer(${i})">
-        <span class="edit-tile-pill">Click to edit</span>
-        <article class="product-tile">${tileMarkup(p)}</article>
-      </div>
-    `).join("");
-  }
-  grid.innerHTML += `
-    <div class="add-tile" onclick="openDrawer(null)">
-      <span class="plus">+</span>
-      <span>Add Product</span>
     </div>`;
 }
 
@@ -703,18 +671,32 @@ $("delete-product-btn").addEventListener("click", async () => {
   closeDrawer();
 });
 
+function showToast(text, type) {
+  const el = $("save-status");
+  el.textContent = text;
+  el.className = `save-toast show ${type}`;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => el.classList.remove("show"), 3500);
+}
+
 async function commitCatalogue(message) {
-  $("save-status").innerHTML = '<p class="loading-text">Saving…</p>';
+  showToast("Saving…", "loading");
   try {
     const content = serialiseCatalogue(PRODUCTS);
     await api("/save", {
       method: "POST",
       body: JSON.stringify({ password: PASSWORD, content, sha: CURRENT_SHA, message })
     });
-    $("save-status").innerHTML = '<p class="status-msg success">Saved successfully.</p>';
+    showToast("Saved successfully.", "success");
     await loadProducts();
+    // If we're currently looking at the Products page, refresh it so the
+    // real tiles reflect the change immediately.
+    if (loadedPageKey === "products") {
+      loadedPageKey = null; // force loadPageIntoFrame to actually reload
+      loadPageIntoFrame("products");
+    }
   } catch (err) {
-    $("save-status").innerHTML = `<p class="status-msg error">Save failed: ${err.message}</p>`;
+    showToast("Save failed: " + err.message, "error");
   }
 }
 
@@ -723,20 +705,10 @@ async function commitCatalogue(message) {
    =================================================================== */
 let currentSection = "home";
 
-function selectSection(key, btn) {
-  document.querySelectorAll(".page-pick-btn").forEach(b => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
+function selectSection(key) {
   currentSection = key;
-
-  if (key === "products") {
-    $("products-view").classList.remove("hidden");
-    $("pages-view").classList.add("hidden");
-    $("page-save-bar").classList.add("hidden");
-  } else {
-    $("products-view").classList.add("hidden");
-    $("pages-view").classList.remove("hidden");
-    loadPageIntoFrame(key);
-  }
+  $("add-product-btn-topbar").classList.toggle("hidden", key !== "products");
+  loadPageIntoFrame(key);
 }
 
 /* ===================================================================
@@ -752,6 +724,7 @@ const PAGES = {
   services:  { path: "services/index.html",   src: "../services/index.html",   depth: 1 },
   contact:   { path: "contact/index.html",    src: "../contact/index.html",    depth: 1 },
   resources: { path: "resources/index.html",  src: "../resources/index.html",  depth: 1 },
+  products:  { path: "products/index.html",   src: "../products/index.html",   depth: 1 },
 };
 
 let currentPagePath = "index.html";
@@ -787,7 +760,31 @@ function onPageFrameLoad() {
   setTimeout(() => {
     injectEditableBehaviour(doc);
     interceptNavLinks(doc);
+    attachProductTileHandlers(doc);
   }, 400);
+}
+
+// On the real Products page, clicking a tile opens the same structured
+// edit drawer used everywhere else — real tiles carry data-id already.
+function attachProductTileHandlers(doc) {
+  if (loadedPageKey !== "products") return;
+  const style = doc.createElement("style");
+  style.textContent = `.product-tile{cursor:pointer;transition:outline .1s ease;outline-offset:3px;}
+    .product-tile:hover{outline:2px dashed #054A80;}`;
+  doc.head.appendChild(style);
+
+  doc.querySelectorAll(".product-tile[data-id]").forEach(tile => {
+    tile.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const index = PRODUCTS.findIndex(p => p.id === tile.dataset.id);
+      if (index === -1) {
+        alert("Couldn't match this product to the catalogue data — try refreshing the page.");
+        return;
+      }
+      openDrawer(index);
+    }, true); // capture phase — fires before the tile's own "Learn More"/"Enquire" links
+  });
 }
 
 // Classify a nav link's href into one of our page keys, regardless of
@@ -993,14 +990,18 @@ async function loadHistory() {
 
 async function restoreVersion(sha) {
   if (!confirm("Restore this earlier version? Your current version stays in history too.")) return;
-  $("save-status").innerHTML = '<p class="loading-text">Restoring…</p>';
+  showToast("Restoring…", "loading");
   try {
     await api("/restore", { method: "POST", body: JSON.stringify({ password: PASSWORD, sha }) });
-    $("save-status").innerHTML = '<p class="status-msg success">Restored successfully.</p>';
+    showToast("Restored successfully.", "success");
     await loadProducts();
     loadHistory();
+    if (loadedPageKey === "products") {
+      loadedPageKey = null;
+      loadPageIntoFrame("products");
+    }
   } catch (err) {
-    $("save-status").innerHTML = `<p class="status-msg error">Restore failed: ${err.message}</p>`;
+    showToast("Restore failed: " + err.message, "error");
   }
 }
 </script>
