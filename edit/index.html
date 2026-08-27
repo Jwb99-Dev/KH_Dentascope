@@ -894,6 +894,7 @@ function injectEditableBehaviour(doc) {
       el.addEventListener("click", (e) => {
         if (el.isContentEditable) return; // already editing
         e.preventDefault();
+        el._khSnapshot = el.innerHTML; // remember what it looked like before this edit session
         el.setAttribute("contenteditable", "true");
         el.classList.add("kh-editing");
         el.focus();
@@ -901,6 +902,7 @@ function injectEditableBehaviour(doc) {
       el.addEventListener("blur", () => {
         el.removeAttribute("contenteditable");
         el.classList.remove("kh-editing");
+        if (el.innerHTML === el._khSnapshot) return; // nothing actually changed — don't stage
         el.classList.add("kh-changed");
         pendingPageChanges[id] = { type: "html", value: el.innerHTML };
         stageChange(`page:${loadedPageKey}:${id}`, "page-text", el.getAttribute("data-edit-label") || id);
