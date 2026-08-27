@@ -197,18 +197,12 @@
       <span class="tag">EDIT MODE</span>
     </div>
     <div class="edit-topbar-actions">
+      <button class="edit-toolbtn" onclick="selectSection('home')">Home</button>
       <button class="edit-toolbtn" id="toggle-history-btn">Past Changes</button>
     </div>
   </div>
 
-  <div class="pages-picker">
-    <button class="page-pick-btn active" id="tab-home-btn" onclick="selectSection('home', this)">Home</button>
-    <button class="page-pick-btn" id="tab-products-btn" onclick="selectSection('products', this)">Products</button>
-    <button class="page-pick-btn" onclick="selectSection('about', this)">About</button>
-    <button class="page-pick-btn" onclick="selectSection('services', this)">Services</button>
-    <button class="page-pick-btn" onclick="selectSection('contact', this)">Contact</button>
-    <button class="page-pick-btn" onclick="selectSection('resources', this)">Resources</button>
-  </div>
+  <p class="pages-hint">Use the real navigation menu below to move between pages. Click any heading, paragraph or image to edit it directly. Changes are highlighted until you save.</p>
 
   <!-- ---- PRODUCTS VIEW ---- -->
   <div id="products-view" class="hidden">
@@ -234,7 +228,6 @@
 
   <!-- ---- PAGES VIEW ---- -->
   <div id="pages-view">
-    <p class="pages-hint">Click any heading, paragraph or image below to edit it directly. Changes are highlighted until you save.</p>
     <div class="page-frame-wrap">
       <iframe id="page-frame" src="../index.html" title="Home page editor"></iframe>
     </div>
@@ -791,7 +784,38 @@ function onPageFrameLoad() {
     return;
   }
   // Give the page's own scripts (nav build, fade-ins) a moment to finish.
-  setTimeout(() => injectEditableBehaviour(doc), 400);
+  setTimeout(() => {
+    injectEditableBehaviour(doc);
+    interceptNavLinks(doc);
+  }, 400);
+}
+
+// Classify a nav link's href into one of our page keys, regardless of
+// the leading "../" noise that varies with how deep the current page sits.
+function classifyNavHref(href) {
+  if (!href) return null;
+  const clean = href.replace(/^(\.\.\/)+/, "").split("#")[0].split("?")[0];
+  if (clean === "index.html" || clean === "" || clean === "/") return "home";
+  if (clean.startsWith("products/")) return "products";
+  if (clean.startsWith("about/")) return "about";
+  if (clean.startsWith("services/")) return "services";
+  if (clean.startsWith("contact/")) return "contact";
+  if (clean.startsWith("resources/")) return "resources";
+  return null;
+}
+
+function interceptNavLinks(doc) {
+  const nav = doc.getElementById("site-nav");
+  if (!nav || nav.dataset.khIntercepted) return;
+  nav.dataset.khIntercepted = "true";
+  nav.addEventListener("click", (e) => {
+    const link = e.target.closest("a");
+    if (!link) return; // hamburger button etc. — let it behave normally
+    const key = classifyNavHref(link.getAttribute("href"));
+    if (!key) return; // unrecognised link, don't hijack it
+    e.preventDefault();
+    selectSection(key);
+  });
 }
 
 function injectEditableBehaviour(doc) {
