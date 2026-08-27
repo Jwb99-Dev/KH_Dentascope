@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Products — KH Dentascope UK</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Reuses the real site stylesheets so this looks exactly like the live page -->
+<link rel="stylesheet" href="../assets/css/global.css">
+<link rel="stylesheet" href="../products/style.css">
+
+<style>
+  /* ===== Styles specific to the EDIT TOOL only (not on the live site) ===== */
+  .edit-topbar{
+    position:sticky;top:0;z-index:40;
+    background:#fff;border-bottom:1px solid rgba(0,0,0,.08);
+    padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 2px 10px rgba(0,0,0,.04);
+  }
+  .edit-topbar-title{display:flex;align-items:center;gap:.6rem;}
+  .edit-topbar-title strong{font-size:1.05rem;}
+  .edit-topbar-title span.tag{
+    background:#fdf1e3;color:#a05a00;font-size:.7rem;font-weight:700;
+    padding:.2rem .55rem;border-radius:5px;letter-spacing:.02em;
+  }
+  .edit-topbar-actions{display:flex;gap:.6rem;align-items:center;}
+  .edit-toolbtn{
+    border:1px solid rgba(0,0,0,.12);background:#fff;color:var(--colour-primary,#054A80);
+    padding:.5rem 1rem;border-radius:7px;font-size:.85rem;font-weight:600;cursor:pointer;
+  }
+  .edit-toolbtn:hover{background:#f6f8fa;}
+
+  .mode-tab{
+    border:none;background:none;color:#7a8894;font-weight:700;font-size:.85rem;
+    padding:.5rem .9rem;border-radius:7px;cursor:pointer;
+  }
+  .mode-tab.active{background:rgba(5,74,128,.08);color:var(--colour-primary,#054A80);}
+  .mode-tab:hover{background:rgba(5,74,128,.06);}
+
+  .pages-picker{display:flex;gap:.5rem;flex-wrap:wrap;padding:1rem 1.5rem 0;}
+  .page-pick-btn{
+    border:1px solid #d8dee3;background:#fff;padding:.5rem 1rem;border-radius:20px;
+    font-size:.85rem;font-weight:600;cursor:pointer;color:#28323c;
+  }
+  .page-pick-btn.active{background:var(--colour-primary,#054A80);color:#fff;border-color:var(--colour-primary,#054A80);}
+  .page-pick-btn:disabled{color:#b7c0c8;cursor:not-allowed;}
+  .page-pick-btn .soon{font-size:.65rem;font-weight:700;margin-left:.3rem;color:#b7c0c8;}
+  .pages-hint{padding:.6rem 1.5rem 0;font-size:.85rem;color:#7a8894;}
+  .page-frame-wrap{padding:1rem 1.5rem 3rem;}
+  #page-frame{
+    width:100%;height:82vh;border:1px solid #e0e5e9;border-radius:10px;background:#fff;
+  }
+
+  .page-save-bar{
+    position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);
+    background:#1c2733;color:#fff;padding:.85rem 1.25rem;border-radius:10px;
+    display:flex;align-items:center;gap:1.25rem;box-shadow:0 8px 24px rgba(0,0,0,.25);
+    z-index:70;font-size:.88rem;
+  }
+
+  .edit-tile-wrap{position:relative;cursor:pointer;transition:transform .15s ease;}
+  .edit-tile-wrap:hover{transform:translateY(-3px);}
+  .edit-tile-wrap:hover .product-tile{box-shadow:0 10px 30px rgba(5,74,128,.18);outline:2px solid var(--colour-primary,#054A80);outline-offset:2px;}
+  .edit-tile-pill{
+    position:absolute;top:.6rem;right:.6rem;z-index:5;
+    background:var(--colour-primary,#054A80);color:#fff;font-size:.72rem;font-weight:700;
+    padding:.3rem .65rem;border-radius:20px;opacity:0;transition:opacity .15s ease;
+    pointer-events:none;
+  }
+  .edit-tile-wrap:hover .edit-tile-pill{opacity:1;}
+
+  .add-tile{
+    border:2px dashed rgba(5,74,128,.35);border-radius:14px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:340px;color:var(--colour-primary,#054A80);cursor:pointer;
+    background:rgba(5,74,128,.03);transition:background .15s ease;
+  }
+  .add-tile:hover{background:rgba(5,74,128,.07);}
+  .add-tile .plus{font-size:2.4rem;line-height:1;margin-bottom:.4rem;font-weight:300;}
+  .add-tile span{font-weight:600;}
+
+  /* Slide-over drawer */
+  .drawer-backdrop{
+    position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:60;
+    display:none;
+  }
+  .drawer-backdrop.open{display:block;}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;width:520px;max-width:100%;
+    background:#fff;z-index:61;box-shadow:-8px 0 30px rgba(0,0,0,.15);
+    transform:translateX(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-header{
+    padding:1.25rem 1.5rem;border-bottom:1px solid rgba(0,0,0,.08);
+    display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+  }
+  .drawer-header h2{margin:0;font-size:1.15rem;}
+  .drawer-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#777;line-height:1;}
+  .drawer-body{padding:1.25rem 1.5rem;overflow-y:auto;flex:1;}
+  .drawer-footer{
+    padding:1rem 1.5rem;border-top:1px solid rgba(0,0,0,.08);
+    display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+    background:#fafbfc;
+  }
+
+  .field-label{display:block;font-size:.82rem;font-weight:700;margin:1.1rem 0 .3rem;color:#28323c;}
+  .field-label:first-child{margin-top:0;}
+  .field-hint{font-size:.75rem;color:#7a8894;margin-top:.2rem;}
+  .edit-input, .edit-select, .edit-textarea{
+    width:100%;padding:.55rem .7rem;border:1px solid #d8dee3;border-radius:6px;
+    font-size:.92rem;font-family:inherit;background:#fff;
+  }
+  .edit-textarea{resize:vertical;min-height:90px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem;}
+  .checkbox-row{display:flex;align-items:center;gap:.5rem;margin-top:1rem;}
+  .checkbox-row input{width:auto;}
+
+  .mini-preview{
+    border:1px solid #e5e9ec;border-radius:10px;padding:1rem;background:#fafbfc;
+    margin-bottom:1.25rem;
+  }
+  .mini-preview-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#8a97a3;font-weight:700;margin-bottom:.6rem;}
+
+  .upload-row{display:flex;gap:.5rem;align-items:center;}
+  .upload-row .edit-input{flex:1;}
+  .upload-btn{
+    flex-shrink:0;background:#eef1f4;border:1px solid #d8dee3;color:#28323c;
+    padding:.55rem .8rem;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;
+    white-space:nowrap;
+  }
+  .upload-btn:hover{background:#e3e8ec;}
+  .thumb-preview{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #d8dee3;flex-shrink:0;}
+
+  .repeat-row{
+    border:1px solid #e5e9ec;border-radius:8px;padding:.75rem;margin-bottom:.6rem;background:#fff;
+  }
+  .repeat-row-top{display:flex;gap:.5rem;margin-bottom:.5rem;}
+  .repeat-remove{
+    background:none;border:none;color:#c0392b;font-size:.78rem;font-weight:600;cursor:pointer;
+    margin-top:.4rem;
+  }
+  .add-row-btn{
+    background:none;border:1px dashed #aeb8c0;color:var(--colour-primary,#054A80);
+    width:100%;padding:.5rem;border-radius:6px;font-size:.85rem;font-weight:600;cursor:pointer;
+    margin-top:.3rem;
+  }
+  .add-row-btn:hover{background:#f6f8fa;}
+
+  .btn-block{width:100%;text-align:center;}
+  .status-msg{font-size:.85rem;margin-top:.6rem;}
+  .status-msg.error{color:#c0392b;}
+  .status-msg.success{color:#1c8a4c;}
+
+  #login-screen{max-width:380px;margin:5rem auto;text-align:center;}
+  .login-eyebrow{font-size:.6rem !important;padding:.25rem .6rem !important;}
+  #login-screen .card{
+    text-align:left;background:#fff;border:1px solid #e5e9ec;border-radius:12px;
+    padding:1.5rem;margin-top:1rem;
+  }
+
+  .history-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid #eee;font-size:.88rem;}
+  .history-item:last-child{border-bottom:none;}
+  .history-item .meta{color:#8a97a3;font-size:.76rem;margin-top:.15rem;}
+  .loading-text{color:#8a97a3;font-size:.9rem;padding:1rem 0;}
+
+  .hidden{display:none !important;}
+  .edit-page-content .products-grid{margin-top:1.5rem;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="login-screen">
+  <div style="text-align:center;">
+    <span class="eyebrow login-eyebrow">Website Editing Portal</span>
+    <h1 style="margin:.35rem 0 0;white-space:nowrap;font-size:1.8rem;">KH Dentascope</h1>
+    <p style="color:#7a8894;">Welcome back — sign in to make changes to your website.</p>
+  </div>
+  <div class="card">
+    <label class="field-label" for="password-input">Password</label>
+    <input type="password" id="password-input" class="edit-input" placeholder="Enter your password">
+    <button class="btn btn-primary btn-block" id="login-btn" style="margin-top:1rem;">Log in</button>
+    <div id="login-error" class="status-msg error hidden"></div>
+  </div>
+</div>
+
+<!-- ============ MAIN EDIT SCREEN ============ -->
+<div id="main-screen" class="hidden edit-page-content">
+
+  <div class="edit-topbar">
+    <div class="edit-topbar-title">
+      <strong>KH Dentascope</strong>
+      <span class="tag">EDIT MODE</span>
+    </div>
+    <div class="edit-topbar-actions">
+      <button class="edit-toolbtn" id="toggle-history-btn">Past Changes</button>
+    </div>
+  </div>
+
+  <div class="pages-picker">
+    <button class="page-pick-btn active" id="tab-home-btn" onclick="selectSection('home', this)">Home</button>
+    <button class="page-pick-btn" id="tab-products-btn" onclick="selectSection('products', this)">Products</button>
+    <button class="page-pick-btn" onclick="selectSection('about', this)">About</button>
+    <button class="page-pick-btn" onclick="selectSection('services', this)">Services</button>
+    <button class="page-pick-btn" onclick="selectSection('contact', this)">Contact</button>
+    <button class="page-pick-btn" onclick="selectSection('resources', this)">Resources</button>
+  </div>
+
+  <!-- ---- PRODUCTS VIEW ---- -->
+  <div id="products-view" class="hidden">
+    <main class="page-content">
+      <div class="page-header" style="padding-bottom:1rem;">
+        <div class="container">
+          <span class="eyebrow">Editing</span>
+          <h1>Your Products</h1>
+          <p>Click any product to edit it. Changes save straight to your website.</p>
+        </div>
+      </div>
+
+      <section class="products-section section-pad" style="padding-top:0;">
+        <div class="container">
+          <div class="products-grid" id="products-grid">
+            <div class="loading-text">Loading products…</div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="save-status" class="container" style="padding-bottom:2rem;"></div>
+  </div>
+
+  <!-- ---- PAGES VIEW ---- -->
+  <div id="pages-view">
+    <p class="pages-hint">Click any heading, paragraph or image below to edit it directly. Changes are highlighted until you save.</p>
+    <div class="page-frame-wrap">
+      <iframe id="page-frame" src="../index.html" title="Home page editor"></iframe>
+    </div>
+  </div>
+
+  <!-- Floating save bar for page edits -->
+  <div id="page-save-bar" class="page-save-bar hidden">
+    <span id="page-save-count">0 changes</span>
+    <div style="display:flex;gap:.6rem;">
+      <button class="edit-toolbtn" id="page-discard-btn">Discard</button>
+      <button class="btn btn-primary" id="page-save-btn">Save Page Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HISTORY DRAWER ============ -->
+<div class="drawer-backdrop" id="history-backdrop"></div>
+<div class="drawer" id="history-drawer">
+  <div class="drawer-header">
+    <h2>Past Changes</h2>
+    <button class="drawer-close" id="history-close-btn">×</button>
+  </div>
+  <div class="drawer-body" id="history-list">
+    <div class="loading-text">Loading history…</div>
+  </div>
+</div>
+
+<!-- ============ PRODUCT EDIT DRAWER ============ -->
+<div class="drawer-backdrop" id="product-backdrop"></div>
+<div class="drawer" id="product-drawer">
+  <div class="drawer-header">
+    <h2 id="drawer-title">Edit Product</h2>
+    <button class="drawer-close" id="drawer-close-btn">×</button>
+  </div>
+
+  <div class="drawer-body">
+
+    <div class="mini-preview">
+      <div class="mini-preview-label">Live Preview</div>
+      <div id="mini-preview-tile"></div>
+    </div>
+
+    <label class="field-label">Product Name</label>
+    <input type="text" id="f-name" class="edit-input">
+
+    <div class="two-col">
+      <div>
+        <label class="field-label">Model</label>
+        <input type="text" id="f-model" class="edit-input">
+      </div>
+      <div>
+        <label class="field-label">Brand</label>
+        <select id="f-brand" class="edit-select">
+          <option>Alltion</option><option>Xpedent</option><option>Kaps</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="field-label">Category</label>
+    <select id="f-category" class="edit-select">
+      <option>Dental Microscope</option><option>Dental Loupes</option><option>Ophthalmic/ENT</option>
+    </select>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="f-bestseller">
+      <label for="f-bestseller" style="margin:0;font-size:.88rem;">Show "Best Seller" badge</label>
+    </div>
+
+    <label class="field-label">Main Product Image</label>
+    <div class="upload-row">
+      <img id="f-image-thumb" class="thumb-preview hidden">
+      <input type="text" id="f-image" class="edit-input" placeholder="No image uploaded yet" readonly>
+      <button class="upload-btn" id="f-image-upload-btn">Upload</button>
+      <input type="file" id="f-image-file" accept="image/*" class="hidden">
+    </div>
+
+    <label class="field-label">Brand Logo</label>
+    <div class="upload-row">
+      <img id="f-brandLogo-thumb" class="thumb-preview hidden">
+      <input type="text" id="f-brandLogo" class="edit-input" placeholder="No logo uploaded yet" readonly>
+      <button class="upload-btn" id="f-brandLogo-upload-btn">Upload</button>
+      <input type="file" id="f-brandLogo-file" accept="image/*" class="hidden">
+    </div>
+
+    <label class="field-label">Tile Highlights <span class="field-hint">(3 short bullet points shown on the product card)</span></label>
+    <input type="text" id="f-feature1" class="edit-input" placeholder="Highlight 1" style="margin-bottom:.5rem;">
+    <input type="text" id="f-feature2" class="edit-input" placeholder="Highlight 2" style="margin-bottom:.5rem;">
+    <input type="text" id="f-feature3" class="edit-input" placeholder="Highlight 3">
+
+    <label class="field-label">PDF Brochure <span class="field-hint">(optional)</span></label>
+    <div class="upload-row">
+      <input type="text" id="f-pdfDownload" class="edit-input" placeholder="No PDF uploaded" readonly>
+      <button class="upload-btn" id="f-pdf-upload-btn">Upload</button>
+      <input type="file" id="f-pdf-file" accept="application/pdf" class="hidden">
+    </div>
+
+    <label class="field-label">Full Description</label>
+    <textarea id="f-description" class="edit-textarea" style="min-height:130px;"></textarea>
+    <div class="field-hint">Leave a blank line between paragraphs.</div>
+
+    <label class="field-label">Specifications</label>
+    <div id="specs-rows"></div>
+    <button class="add-row-btn" id="add-spec-btn">+ Add Spec</button>
+
+    <label class="field-label">Gallery Images</label>
+    <div id="images-rows"></div>
+    <button class="add-row-btn" id="add-image-btn">+ Add Gallery Image</button>
+
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn btn-outline" id="delete-product-btn" style="border-color:#c0392b;color:#c0392b;">Delete</button>
+    <div style="display:flex;gap:.6rem;">
+      <button class="edit-toolbtn" id="cancel-drawer-btn">Cancel</button>
+      <button class="btn btn-primary" id="save-product-btn">Save Changes</button>
+    </div>
+  </div>
+  <div id="drawer-status" class="status-msg" style="padding:0 1.5rem 1rem;"></div>
+</div>
+
+<script>
+/* ===================================================================
+   CONFIG
+   =================================================================== */
+const WORKER_URL = "https://kh-dentascope-edit.jackwbrady99.workers.dev";
+
+/* ===================================================================
+   STATE
+   =================================================================== */
+let PASSWORD = null;
+let PRODUCTS = [];
+let CURRENT_SHA = null;
+let FILE_HEADER = "";
+let editingIndex = null;
+let draftSpecs = [];
+let draftImages = [];
+
+function $(id){ return document.getElementById(id); }
+
+/* ===================================================================
+   API HELPER
+   =================================================================== */
+async function api(path, opts = {}) {
+  const res = await fetch(WORKER_URL + path, {
+    ...opts,
+    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
+
+/* ===================================================================
+   CATALOGUE FILE PARSING
+   =================================================================== */
+function parseCatalogue(rawText) {
+  const marker = "const PRODUCTS";
+  const idx = rawText.indexOf(marker);
+  FILE_HEADER = rawText.slice(0, idx);
+  const afterEquals = rawText.slice(rawText.indexOf("=", idx) + 1);
+  const arrayText = afterEquals.slice(0, afterEquals.lastIndexOf("];") + 1).trim();
+  return new Function("return " + arrayText)();
+}
+function serialiseCatalogue(products) {
+  return FILE_HEADER + "const PRODUCTS = " + JSON.stringify(products, null, 2) + ";\n";
+}
+
+function slugify(name) {
+  return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+function ensureUniqueId(base, excludeIndex) {
+  let id = base || "product";
+  let n = 2;
+  const taken = i => PRODUCTS.some((p, idx) => p.id === i && idx !== excludeIndex);
+  while (taken(id)) { id = `${base}-${n}`; n++; }
+  return id;
+}
+
+/* ===================================================================
+   LOGIN
+   =================================================================== */
+$("login-btn").addEventListener("click", async () => {
+  const pw = $("password-input").value;
+  $("login-error").classList.add("hidden");
+  try {
+    await api("/login", { method: "POST", body: JSON.stringify({ password: pw }) });
+    PASSWORD = pw;
+    $("login-screen").classList.add("hidden");
+    $("main-screen").classList.remove("hidden");
+    loadProducts(); // loads in the background so Products is ready when clicked
+  } catch (err) {
+    $("login-error").textContent = err.message;
+    $("login-error").classList.remove("hidden");
+  }
+});
+$("password-input").addEventListener("keydown", e => { if (e.key === "Enter") $("login-btn").click(); });
+
+/* ===================================================================
+   LOAD + RENDER PRODUCT GRID (mirrors the real site's tile markup)
+   =================================================================== */
+async function loadProducts() {
+  $("products-grid").innerHTML = '<div class="loading-text">Loading products…</div>';
+  try {
+    const data = await api("/products");
+    CURRENT_SHA = data.sha;
+    PRODUCTS = parseCatalogue(data.content);
+    renderGrid();
+  } catch (err) {
+    $("products-grid").innerHTML = `<div class="status-msg error">Couldn't load products: ${err.message}</div>`;
+  }
+}
+
+function tileMarkup(p) {
+  const imgHTML = p.image
+    ? `<img src="${p.image}" onerror="this.parentElement.innerHTML='<div class=\\'product-tile-img-placeholder\\'><span>Image Coming Soon</span></div>'" class="product-tile-img" alt="${p.name || ''}" loading="lazy">`
+    : `<div class="product-tile-img-placeholder"><span>Image Coming Soon</span></div>`;
+  const brandLogoHTML = p.brandLogo
+    ? `<img src="${p.brandLogo}" onerror="this.style.display='none'" alt="${p.brand || ''}" class="product-tile-brand-logo">`
+    : '';
+  const featuresHTML = (p.features || []).map(f => `<li>${f}</li>`).join('');
+  return `
+    ${p.bestseller ? '<span class="product-badge">Best Seller</span>' : ''}
+    <div class="product-tile-img-wrap">${imgHTML}</div>
+    <div class="product-tile-body">
+      <div class="product-tile-brand-row">
+        ${brandLogoHTML}
+        <span class="product-tile-brand-name">${p.brand || ''}</span>
+      </div>
+      <h3 class="product-tile-name">${p.name || 'Untitled product'}</h3>
+      <span class="product-tile-model">${p.model || ''}</span>
+      <ul class="product-tile-features">${featuresHTML}</ul>
+    </div>`;
+}
+
+function renderGrid() {
+  const grid = $("products-grid");
+  if (!PRODUCTS.length) {
+    grid.innerHTML = '';
+  } else {
+    grid.innerHTML = PRODUCTS.map((p, i) => `
+      <div class="edit-tile-wrap" onclick="openDrawer(${i})">
+        <span class="edit-tile-pill">Click to edit</span>
+        <article class="product-tile">${tileMarkup(p)}</article>
+      </div>
+    `).join("");
+  }
+  grid.innerHTML += `
+    <div class="add-tile" onclick="openDrawer(null)">
+      <span class="plus">+</span>
+      <span>Add Product</span>
+    </div>`;
+}
+
+/* ===================================================================
+   DRAWER — OPEN / CLOSE
+   =================================================================== */
+function openDrawer(index) {
+  editingIndex = index;
+  const isNew = index === null;
+  const p = isNew ? {
+    name: "", model: "", brand: "Alltion", category: "Dental Microscope",
+    bestseller: false, image: "", brandLogo: "", features: ["", "", ""],
+    pdfDownload: "", lightbox: { description: "", specs: [], images: [] }
+  } : PRODUCTS[index];
+
+  $("drawer-title").textContent = isNew ? "Add Product" : "Edit Product";
+  $("f-name").value = p.name;
+  $("f-model").value = p.model;
+  $("f-brand").value = p.brand;
+  $("f-category").value = p.category;
+  $("f-bestseller").checked = !!p.bestseller;
+  $("f-image").value = p.image || "";
+  $("f-brandLogo").value = p.brandLogo || "";
+  $("f-feature1").value = p.features?.[0] || "";
+  $("f-feature2").value = p.features?.[1] || "";
+  $("f-feature3").value = p.features?.[2] || "";
+  $("f-pdfDownload").value = p.pdfDownload || "";
+  $("f-description").value = p.lightbox?.description || "";
+  updateThumb("f-image");
+  updateThumb("f-brandLogo");
+
+  draftSpecs = JSON.parse(JSON.stringify(p.lightbox?.specs || []));
+  draftImages = JSON.parse(JSON.stringify(p.lightbox?.images || []));
+  renderSpecRows();
+  renderImageRows();
+
+  $("delete-product-btn").classList.toggle("hidden", isNew);
+  $("drawer-status").textContent = "";
+  updatePreview();
+
+  $("product-backdrop").classList.add("open");
+  $("product-drawer").classList.add("open");
+}
+function closeDrawer() {
+  $("product-backdrop").classList.remove("open");
+  $("product-drawer").classList.remove("open");
+}
+$("drawer-close-btn").addEventListener("click", closeDrawer);
+$("cancel-drawer-btn").addEventListener("click", closeDrawer);
+$("product-backdrop").addEventListener("click", closeDrawer);
+
+/* Live preview inside the drawer, updates as you type */
+function collectDraft() {
+  return {
+    name: $("f-name").value.trim() || "Untitled product",
+    model: $("f-model").value.trim(),
+    brand: $("f-brand").value,
+    category: $("f-category").value,
+    bestseller: $("f-bestseller").checked,
+    image: $("f-image").value.trim(),
+    brandLogo: $("f-brandLogo").value.trim(),
+    features: [$("f-feature1").value.trim(), $("f-feature2").value.trim(), $("f-feature3").value.trim()].filter(Boolean),
+  };
+}
+function updatePreview() {
+  $("mini-preview-tile").innerHTML = `<article class="product-tile" style="max-width:280px;">${tileMarkup(collectDraft())}</article>`;
+}
+["f-name","f-model","f-brand","f-category","f-bestseller","f-image","f-brandLogo","f-feature1","f-feature2","f-feature3"]
+  .forEach(id => $(id).addEventListener("input", updatePreview));
+["f-brand","f-category","f-bestseller"].forEach(id => $(id).addEventListener("change", updatePreview));
+
+function updateThumb(fieldId) {
+  const val = $(fieldId).value.trim();
+  const thumb = $(fieldId + "-thumb");
+  if (val) { thumb.src = val; thumb.classList.remove("hidden"); }
+  else { thumb.classList.add("hidden"); }
+}
+
+/* ===================================================================
+   IMAGE / PDF UPLOADS
+   =================================================================== */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadFile(file, targetFieldId) {
+  $("drawer-status").textContent = "Uploading…";
+  $("drawer-status").className = "status-msg";
+  try {
+    const base64Data = await fileToBase64(file);
+    const result = await api("/upload-image", {
+      method: "POST",
+      body: JSON.stringify({ password: PASSWORD, filename: file.name, base64Data })
+    });
+    $(targetFieldId).value = result.path;
+    if ($(targetFieldId + "-thumb")) updateThumb(targetFieldId);
+    updatePreview();
+    $("drawer-status").textContent = "Uploaded.";
+    $("drawer-status").className = "status-msg success";
+  } catch (err) {
+    $("drawer-status").textContent = "Upload failed: " + err.message;
+    $("drawer-status").className = "status-msg error";
+  }
+}
+
+$("f-image-upload-btn").addEventListener("click", () => $("f-image-file").click());
+$("f-image-file").addEventListener("change", e => { if (e.target.files[0]) uploadFile(e.target.files[0], "f-image"); });
+
+$("f-brandLogo-upload-btn").addEventListener("click", () => $("f-brandLogo-file").click());
+$("f-brandLogo-file").addEventListener("change", e => { if (e.target.files[0]) uploadFile(e.target.files[0], "f-brandLogo"); });
+
+$("f-pdf-upload-btn").addEventListener("click", () => $("f-pdf-file").click());
+$("f-pdf-file").addEventListener("change", e => { if (e.target.files[0]) uploadFile(e.target.files[0], "f-pdfDownload"); });
+
+/* ===================================================================
+   DYNAMIC SPEC ROWS
+   =================================================================== */
+function renderSpecRows() {
+  $("specs-rows").innerHTML = draftSpecs.map((s, i) => `
+    <div class="repeat-row">
+      <div class="repeat-row-top">
+        <input type="text" class="edit-input" placeholder="Label (e.g. Magnification)" value="${s.label || ''}" onchange="draftSpecs[${i}].label=this.value">
+        <input type="text" class="edit-input" placeholder="Value" value="${s.value || ''}" onchange="draftSpecs[${i}].value=this.value">
+      </div>
+      <button class="repeat-remove" onclick="removeSpecRow(${i})">Remove</button>
+    </div>
+  `).join("");
+}
+function addSpecRow() { draftSpecs.push({ label: "", value: "" }); renderSpecRows(); }
+function removeSpecRow(i) { draftSpecs.splice(i, 1); renderSpecRows(); }
+$("add-spec-btn").addEventListener("click", addSpecRow);
+
+/* ===================================================================
+   DYNAMIC GALLERY IMAGE ROWS
+   =================================================================== */
+function renderImageRows() {
+  $("images-rows").innerHTML = draftImages.map((img, i) => `
+    <div class="repeat-row">
+      <div class="repeat-row-top" style="align-items:center;">
+        <img class="thumb-preview" src="${img.src || ''}" onerror="this.style.visibility='hidden'">
+        <input type="text" class="edit-input" placeholder="Caption" value="${img.caption || ''}" onchange="draftImages[${i}].caption=this.value">
+        <button class="upload-btn" onclick="document.getElementById('gallery-file-${i}').click()">Upload</button>
+        <input type="file" id="gallery-file-${i}" accept="image/*" class="hidden" onchange="uploadGalleryImage(${i}, this.files[0])">
+      </div>
+      <button class="repeat-remove" onclick="removeImageRow(${i})">Remove</button>
+    </div>
+  `).join("");
+}
+function addImageRow() { draftImages.push({ src: "", caption: "" }); renderImageRows(); }
+function removeImageRow(i) { draftImages.splice(i, 1); renderImageRows(); }
+$("add-image-btn").addEventListener("click", addImageRow);
+
+async function uploadGalleryImage(i, file) {
+  if (!file) return;
+  $("drawer-status").textContent = "Uploading…";
+  $("drawer-status").className = "status-msg";
+  try {
+    const base64Data = await fileToBase64(file);
+    const result = await api("/upload-image", {
+      method: "POST",
+      body: JSON.stringify({ password: PASSWORD, filename: file.name, base64Data })
+    });
+    draftImages[i].src = result.path;
+    renderImageRows();
+    $("drawer-status").textContent = "Uploaded.";
+    $("drawer-status").className = "status-msg success";
+  } catch (err) {
+    $("drawer-status").textContent = "Upload failed: " + err.message;
+    $("drawer-status").className = "status-msg error";
+  }
+}
+
+/* ===================================================================
+   SAVE / DELETE
+   =================================================================== */
+$("save-product-btn").addEventListener("click", async () => {
+  const draft = collectDraft();
+  if (!draft.name || draft.name === "Untitled product" && !$("f-name").value.trim()) {
+    $("drawer-status").textContent = "Product name is required.";
+    $("drawer-status").className = "status-msg error";
+    return;
+  }
+
+  const existing = editingIndex === null ? null : PRODUCTS[editingIndex];
+  const id = existing ? existing.id : ensureUniqueId(slugify($("f-name").value.trim()), editingIndex);
+
+  const product = {
+    id,
+    name: $("f-name").value.trim(),
+    model: $("f-model").value.trim(),
+    brand: $("f-brand").value,
+    category: $("f-category").value,
+    bestseller: $("f-bestseller").checked,
+    image: $("f-image").value.trim(),
+    brandLogo: $("f-brandLogo").value.trim(),
+    features: [$("f-feature1").value.trim(), $("f-feature2").value.trim(), $("f-feature3").value.trim()],
+    pdfDownload: $("f-pdfDownload").value.trim(),
+    lightbox: {
+      description: $("f-description").value,
+      specs: draftSpecs.filter(s => s.label || s.value),
+      images: draftImages.filter(i => i.src),
+    }
+  };
+
+  if (editingIndex === null) PRODUCTS.push(product);
+  else PRODUCTS[editingIndex] = product;
+
+  await commitCatalogue(`${editingIndex === null ? "Add" : "Update"} product: ${product.name}`);
+  closeDrawer();
+});
+
+$("delete-product-btn").addEventListener("click", async () => {
+  if (editingIndex === null) return;
+  const name = PRODUCTS[editingIndex].name;
+  if (!confirm(`Delete "${name}"? You can restore it later from Past Changes.`)) return;
+  PRODUCTS.splice(editingIndex, 1);
+  await commitCatalogue(`Delete product: ${name}`);
+  closeDrawer();
+});
+
+async function commitCatalogue(message) {
+  $("save-status").innerHTML = '<p class="loading-text">Saving…</p>';
+  try {
+    const content = serialiseCatalogue(PRODUCTS);
+    await api("/save", {
+      method: "POST",
+      body: JSON.stringify({ password: PASSWORD, content, sha: CURRENT_SHA, message })
+    });
+    $("save-status").innerHTML = '<p class="status-msg success">Saved successfully.</p>';
+    await loadProducts();
+  } catch (err) {
+    $("save-status").innerHTML = `<p class="status-msg error">Save failed: ${err.message}</p>`;
+  }
+}
+
+/* ===================================================================
+   SECTION SWITCHING (Home / Products / other pages)
+   =================================================================== */
+let currentSection = "home";
+
+function selectSection(key, btn) {
+  document.querySelectorAll(".page-pick-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  currentSection = key;
+
+  if (key === "products") {
+    $("products-view").classList.remove("hidden");
+    $("pages-view").classList.add("hidden");
+    $("page-save-bar").classList.add("hidden");
+  } else {
+    $("products-view").classList.add("hidden");
+    $("pages-view").classList.remove("hidden");
+    loadPageIntoFrame(key);
+  }
+}
+
+/* ===================================================================
+   VISUAL PAGE EDITOR
+   =================================================================== */
+// depth 0 = sits at the site root (Home); depth 1 = sits one folder in
+// (About, Services, Contact, Resources, Products) — this affects how
+// uploaded image paths need adjusting, since the Worker always returns
+// a path assuming a depth-1 caller.
+const PAGES = {
+  home:      { path: "index.html",           src: "../index.html",           depth: 0 },
+  about:     { path: "about/index.html",      src: "../about/index.html",      depth: 1 },
+  services:  { path: "services/index.html",   src: "../services/index.html",   depth: 1 },
+  contact:   { path: "contact/index.html",    src: "../contact/index.html",    depth: 1 },
+  resources: { path: "resources/index.html",  src: "../resources/index.html",  depth: 1 },
+};
+
+let currentPagePath = "index.html";
+let currentPageDepth = 0;
+let loadedPageKey = null;
+let pendingPageChanges = {}; // { "home.hero.heading": { type: "text", value: "..." } }
+
+// Attach the load listener immediately (not lazily) — the iframe starts
+// loading as soon as the HTML parses, so waiting until the user clicks
+// a tab to attach this would miss the very first load event.
+$("page-frame").addEventListener("load", onPageFrameLoad);
+
+function loadPageIntoFrame(key) {
+  if (key === loadedPageKey) return; // already showing this page, don't wipe edits
+  const page = PAGES[key];
+  if (!page) return;
+  loadedPageKey = key;
+  currentPagePath = page.path;
+  currentPageDepth = page.depth;
+  pendingPageChanges = {};
+  updateSaveBar();
+  $("page-frame").src = page.src;
+}
+
+function onPageFrameLoad() {
+  const frame = $("page-frame");
+  let doc;
+  try { doc = frame.contentDocument; } catch (e) {
+    console.error("Can't access page frame (must be same-origin as the edit tool)", e);
+    return;
+  }
+  // Give the page's own scripts (nav build, fade-ins) a moment to finish.
+  setTimeout(() => injectEditableBehaviour(doc), 400);
+}
+
+function injectEditableBehaviour(doc) {
+  // Visual affordance for anything tagged data-edit
+  const style = doc.createElement("style");
+  style.textContent = `
+    [data-edit]{outline-offset:3px;transition:outline .1s ease;cursor:pointer;}
+    [data-edit]:hover{outline:2px dashed #054A80;}
+    [data-edit].kh-editing{outline:2px solid #054A80 !important;background:rgba(5,74,128,.05);}
+    [data-edit].kh-changed{outline:2px solid #1c8a4c !important;}
+    [data-edit-type="image"]:hover{outline:2px dashed #054A80;filter:brightness(.9);}
+  `;
+  doc.head.appendChild(style);
+
+  doc.querySelectorAll("[data-edit]").forEach(el => {
+    const id = el.getAttribute("data-edit");
+    const isImage = el.getAttribute("data-edit-type") === "image";
+
+    if (isImage) {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.pageImageUploadTarget = el;
+        $("page-image-file-input").click();
+      });
+    } else {
+      el.addEventListener("click", (e) => {
+        if (el.isContentEditable) return; // already editing
+        e.preventDefault();
+        el.setAttribute("contenteditable", "true");
+        el.classList.add("kh-editing");
+        el.focus();
+      });
+      el.addEventListener("blur", () => {
+        el.removeAttribute("contenteditable");
+        el.classList.remove("kh-editing");
+        el.classList.add("kh-changed");
+        pendingPageChanges[id] = { type: "html", value: el.innerHTML };
+        updateSaveBar();
+      });
+    }
+  });
+}
+
+// Hidden file input (in the parent doc) used for image edits inside the iframe
+const pageImageFileInput = document.createElement("input");
+pageImageFileInput.type = "file";
+pageImageFileInput.accept = "image/*";
+pageImageFileInput.id = "page-image-file-input";
+pageImageFileInput.className = "hidden";
+document.body.appendChild(pageImageFileInput);
+
+pageImageFileInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  const target = window.pageImageUploadTarget;
+  if (!file || !target) return;
+  try {
+    const base64Data = await fileToBase64(file);
+    const result = await api("/upload-image", {
+      method: "POST",
+      body: JSON.stringify({ password: PASSWORD, filename: file.name, base64Data })
+    });
+    // The Worker returns a path assuming a depth-1 caller (e.g. products/,
+    // about/); Home sits at depth 0, so it needs the leading "../" stripped.
+    const pathForRoot = currentPageDepth === 0 ? result.path.replace(/^\.\.\//, "") : result.path;
+    target.src = pathForRoot;
+    target.classList.add("kh-changed");
+    const id = target.getAttribute("data-edit");
+    pendingPageChanges[id] = { type: "image", value: pathForRoot };
+    updateSaveBar();
+  } catch (err) {
+    alert("Image upload failed: " + err.message);
+  }
+  pageImageFileInput.value = "";
+});
+
+function updateSaveBar() {
+  const count = Object.keys(pendingPageChanges).length;
+  $("page-save-bar").classList.toggle("hidden", count === 0);
+  $("page-save-count").textContent = `${count} change${count === 1 ? "" : "s"}`;
+}
+
+$("page-discard-btn").addEventListener("click", () => {
+  if (!confirm("Discard your unsaved changes on this page?")) return;
+  $("page-frame").src = $("page-frame").src; // reload, dropping in-memory edits
+  pendingPageChanges = {};
+  updateSaveBar();
+});
+
+$("page-save-btn").addEventListener("click", async () => {
+  $("page-save-btn").disabled = true;
+  $("page-save-btn").textContent = "Saving…";
+  try {
+    const data = await api(`/page?path=${encodeURIComponent(currentPagePath)}`);
+    const parser = new DOMParser();
+    const parsedDoc = parser.parseFromString(data.content, "text/html");
+
+    for (const [id, change] of Object.entries(pendingPageChanges)) {
+      const el = parsedDoc.querySelector(`[data-edit="${id}"]`);
+      if (!el) continue;
+      if (change.type === "image") el.setAttribute("src", change.value);
+      else el.innerHTML = change.value;
+    }
+
+    const newHtml = "<!DOCTYPE html>\n" + parsedDoc.documentElement.outerHTML;
+    await api("/save-page", {
+      method: "POST",
+      body: JSON.stringify({
+        password: PASSWORD,
+        path: currentPagePath,
+        content: newHtml,
+        sha: data.sha,
+        message: `Update ${currentPagePath} via edit tool (${Object.keys(pendingPageChanges).length} change(s))`
+      })
+    });
+
+    pendingPageChanges = {};
+    updateSaveBar();
+    $("page-frame").src = $("page-frame").src; // reload to show the committed version
+    $("page-save-btn").textContent = "Save Page Changes";
+    $("page-save-btn").disabled = false;
+  } catch (err) {
+    alert("Save failed: " + err.message);
+    $("page-save-btn").textContent = "Save Page Changes";
+    $("page-save-btn").disabled = false;
+  }
+});
+
+/* ===================================================================
+   VERSION HISTORY
+   =================================================================== */
+$("toggle-history-btn").addEventListener("click", () => {
+  $("history-backdrop").classList.add("open");
+  $("history-drawer").classList.add("open");
+  loadHistory();
+});
+$("history-close-btn").addEventListener("click", () => {
+  $("history-backdrop").classList.remove("open");
+  $("history-drawer").classList.remove("open");
+});
+$("history-backdrop").addEventListener("click", () => {
+  $("history-backdrop").classList.remove("open");
+  $("history-drawer").classList.remove("open");
+});
+
+async function loadHistory() {
+  $("history-list").innerHTML = '<div class="loading-text">Loading history…</div>';
+  try {
+    const data = await api("/history");
+    if (!data.history.length) {
+      $("history-list").innerHTML = '<p class="field-hint">No history yet.</p>';
+      return;
+    }
+    $("history-list").innerHTML = data.history.map(h => `
+      <div class="history-item">
+        <div>
+          <div>${h.message}</div>
+          <div class="meta">${new Date(h.date).toLocaleString()} · ${h.author}</div>
+        </div>
+        <button class="edit-toolbtn" onclick="restoreVersion('${h.sha}')">Restore</button>
+      </div>
+    `).join("");
+  } catch (err) {
+    $("history-list").innerHTML = `<div class="status-msg error">Couldn't load history: ${err.message}</div>`;
+  }
+}
+
+async function restoreVersion(sha) {
+  if (!confirm("Restore this earlier version? Your current version stays in history too.")) return;
+  $("save-status").innerHTML = '<p class="loading-text">Restoring…</p>';
+  try {
+    await api("/restore", { method: "POST", body: JSON.stringify({ password: PASSWORD, sha }) });
+    $("save-status").innerHTML = '<p class="status-msg success">Restored successfully.</p>';
+    await loadProducts();
+    loadHistory();
+  } catch (err) {
+    $("save-status").innerHTML = `<p class="status-msg error">Restore failed: ${err.message}</p>`;
+  }
+}
+</script>
+
+</body>
+</html>
