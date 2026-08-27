@@ -827,12 +827,14 @@ function injectEditableBehaviour(doc) {
     [data-edit].kh-editing{outline:2px solid #054A80 !important;background:rgba(5,74,128,.05);}
     [data-edit].kh-changed{outline:2px solid #1c8a4c !important;}
     [data-edit-type="image"]:hover{outline:2px dashed #054A80;filter:brightness(.9);}
+    [data-edit-type="image-placeholder"]:hover{outline:2px dashed #054A80;background:rgba(5,74,128,.08);}
   `;
   doc.head.appendChild(style);
 
   doc.querySelectorAll("[data-edit]").forEach(el => {
     const id = el.getAttribute("data-edit");
-    const isImage = el.getAttribute("data-edit-type") === "image";
+    const editType = el.getAttribute("data-edit-type");
+    const isImage = editType === "image" || editType === "image-placeholder";
 
     if (isImage) {
       el.addEventListener("click", (e) => {
@@ -880,10 +882,17 @@ pageImageFileInput.addEventListener("change", async (e) => {
     // The Worker returns a path assuming a depth-1 caller (e.g. products/,
     // about/); Home sits at depth 0, so it needs the leading "../" stripped.
     const pathForRoot = currentPageDepth === 0 ? result.path.replace(/^\.\.\//, "") : result.path;
-    target.src = pathForRoot;
-    target.classList.add("kh-changed");
     const id = target.getAttribute("data-edit");
-    pendingPageChanges[id] = { type: "image", value: pathForRoot };
+
+    if (target.getAttribute("data-edit-type") === "image-placeholder") {
+      // This is a placeholder <div>, not a real <img> — fill it with one.
+      target.innerHTML = `<img src="${pathForRoot}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;">`;
+      pendingPageChanges[id] = { type: "html", value: target.innerHTML };
+    } else {
+      target.src = pathForRoot;
+      pendingPageChanges[id] = { type: "image", value: pathForRoot };
+    }
+    target.classList.add("kh-changed");
     updateSaveBar();
   } catch (err) {
     alert("Image upload failed: " + err.message);
