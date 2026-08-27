@@ -204,10 +204,10 @@
   <div class="pages-picker">
     <button class="page-pick-btn active" id="tab-home-btn" onclick="selectSection('home', this)">Home</button>
     <button class="page-pick-btn" id="tab-products-btn" onclick="selectSection('products', this)">Products</button>
-    <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">About <span class="soon">soon</span></button>
-    <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">Services <span class="soon">soon</span></button>
-    <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">Contact <span class="soon">soon</span></button>
-    <button class="page-pick-btn" disabled title="Ask your web designer to enable this page">Resources <span class="soon">soon</span></button>
+    <button class="page-pick-btn" onclick="selectSection('about', this)">About</button>
+    <button class="page-pick-btn" onclick="selectSection('services', this)">Services</button>
+    <button class="page-pick-btn" onclick="selectSection('contact', this)">Contact</button>
+    <button class="page-pick-btn" onclick="selectSection('resources', this)">Resources</button>
   </div>
 
   <!-- ---- PRODUCTS VIEW ---- -->
@@ -749,7 +749,20 @@ function selectSection(key, btn) {
 /* ===================================================================
    VISUAL PAGE EDITOR
    =================================================================== */
+// depth 0 = sits at the site root (Home); depth 1 = sits one folder in
+// (About, Services, Contact, Resources, Products) — this affects how
+// uploaded image paths need adjusting, since the Worker always returns
+// a path assuming a depth-1 caller.
+const PAGES = {
+  home:      { path: "index.html",           src: "../index.html",           depth: 0 },
+  about:     { path: "about/index.html",      src: "../about/index.html",      depth: 1 },
+  services:  { path: "services/index.html",   src: "../services/index.html",   depth: 1 },
+  contact:   { path: "contact/index.html",    src: "../contact/index.html",    depth: 1 },
+  resources: { path: "resources/index.html",  src: "../resources/index.html",  depth: 1 },
+};
+
 let currentPagePath = "index.html";
+let currentPageDepth = 0;
 let loadedPageKey = null;
 let pendingPageChanges = {}; // { "home.hero.heading": { type: "text", value: "..." } }
 
@@ -760,11 +773,14 @@ $("page-frame").addEventListener("load", onPageFrameLoad);
 
 function loadPageIntoFrame(key) {
   if (key === loadedPageKey) return; // already showing this page, don't wipe edits
+  const page = PAGES[key];
+  if (!page) return;
   loadedPageKey = key;
-  currentPagePath = "index.html"; // only Home is wired up for now
+  currentPagePath = page.path;
+  currentPageDepth = page.depth;
   pendingPageChanges = {};
   updateSaveBar();
-  $("page-frame").src = "../index.html";
+  $("page-frame").src = page.src;
 }
 
 function onPageFrameLoad() {
@@ -837,8 +853,9 @@ pageImageFileInput.addEventListener("change", async (e) => {
       method: "POST",
       body: JSON.stringify({ password: PASSWORD, filename: file.name, base64Data })
     });
-    // Image sits one folder deeper than /products/, so strip one "../"
-    const pathForRoot = result.path.replace(/^\.\.\//, "");
+    // The Worker returns a path assuming a depth-1 caller (e.g. products/,
+    // about/); Home sits at depth 0, so it needs the leading "../" stripped.
+    const pathForRoot = currentPageDepth === 0 ? result.path.replace(/^\.\.\//, "") : result.path;
     target.src = pathForRoot;
     target.classList.add("kh-changed");
     const id = target.getAttribute("data-edit");
