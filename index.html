@@ -48,13 +48,13 @@
 
         <!-- Left: copy -->
         <div class="hero-copy fade-in">
-          <span class="eyebrow">UK Dental Microscope Specialists</span>
-          <h1 class="hero-h1">
+          <span class="eyebrow" data-edit="home.hero.eyebrow" data-edit-label="Hero eyebrow">UK Dental Microscope Specialists</span>
+          <h1 class="hero-h1" data-edit="home.hero.heading" data-edit-label="Hero heading">
             Expertly Sourced.<br>
             Professionally&nbsp;Fitted.<br>
             Fully Supported.
           </h1>
-          <p class="hero-desc">
+          <p class="hero-desc" data-edit="home.hero.desc" data-edit-label="Hero description">
             Dental microscopes supplied, demoed and installed across the UK&nbsp;—
             with a personal approach you won't find from larger corporate suppliers.
           </p>
@@ -88,7 +88,8 @@
             onerror="this.parentElement.classList.add('hero-img-placeholder')"
             alt="Dental microscope installed in a dental surgery"
             class="hero-img"
-            loading="eager">
+            loading="eager"
+            data-edit="home.hero.image" data-edit-label="Hero image" data-edit-type="image">
         </div>
 
       </div>
@@ -97,23 +98,23 @@
     <!-- ══ BRANDS ══════════════════════════════════════════════ -->
     <section class="brands-section section-pad-sm" aria-label="Brand partners">
       <div class="container text-center">
-        <h2 class="brands-heading fade-in">Brands we're partnered with</h2>
+        <h2 class="brands-heading fade-in" data-edit="home.brands.heading" data-edit-label="Brands heading">Brands we're partnered with</h2>
         <div class="brands-logos fade-in fade-in-delay-1">
           <a href="https://www.alltion.uk/home" target="_blank" rel="noopener noreferrer">
-            <img src="../Website Assets/Brand - Alltion UK.png"
-                 onerror="this.parentElement.innerHTML+='<span class=\'brand-placeholder\'>Alltion UK</span>';this.style.display='none'"
+            <img src="Website Assets/Brand - Alltion UK.png"
+                 onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'brand-placeholder\'>Alltion UK</span>')"
                  alt="Alltion UK — dental microscope brand"
                  class="brand-logo">
           </a>
           <a href="https://kaps-international.com/en/" target="_blank" rel="noopener noreferrer">
-            <img src="../Website Assets/Brand - KAPS.png"
-                 onerror="this.parentElement.innerHTML+='<span class=\'brand-placeholder\'>KAPS</span>';this.style.display='none'"
+            <img src="Website Assets/Brand - KAPS.png"
+                 onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'brand-placeholder\'>KAPS</span>')"
                  alt="KAPS — dental microscope brand"
                  class="brand-logo">
           </a>
           <a href="https://www.xpedent.co.uk/" target="_blank" rel="noopener noreferrer">
-            <img src="../Website Assets/Brand - Xpedent.png"
-                 onerror="this.parentElement.innerHTML+='<span class=\'brand-placeholder\'>Xpedent</span>';this.style.display='none'"
+            <img src="Website Assets/Brand - Xpedent.png"
+                 onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'brand-placeholder\'>Xpedent</span>')"
                  alt="Xpedent — dental microscope brand"
                  class="brand-logo">
           </a>
@@ -125,9 +126,9 @@
     <section class="services-section section-pad" id="services" aria-labelledby="services-heading">
       <div class="container">
         <div class="text-center section-intro fade-in">
-          <span class="eyebrow">What We Offer</span>
-          <h2 id="services-heading">Our Services</h2>
-          <p>From initial demo through to long-term aftercare — we support your practice every step of the way.</p>
+          <span class="eyebrow" data-edit="home.services.eyebrow" data-edit-label="Services eyebrow">What We Offer</span>
+          <h2 id="services-heading" data-edit="home.services.heading" data-edit-label="Services heading">Our Services</h2>
+          <p data-edit="home.services.desc" data-edit-label="Services description">From initial demo through to long-term aftercare — we support your practice every step of the way.</p>
         </div>
         <div class="services-grid">
 
@@ -135,10 +136,11 @@
             <div class="service-icon-wrap">
               <img src="../Website Assets/Services Icon - Demos.png"
                    onerror="this.parentElement.innerHTML='<div class=\'icon-fallback\'>🔬</div>'"
-                   alt="" aria-hidden="true" class="service-icon">
+                   alt="" aria-hidden="true" class="service-icon"
+                   data-edit="home.services.tile1.icon" data-edit-label="Demos icon" data-edit-type="image">
             </div>
-            <h3>Demos &amp; Room Assessment</h3>
-            <p>On-site demonstrations and room assessments tailored to your clinical environment and workflow.</p>
+            <h3 data-edit="home.services.tile1.title" data-edit-label="Demos title">Demos &amp; Room Assessment</h3>
+            <p data-edit="home.services.tile1.desc" data-edit-label="Demos description">On-site demonstrations and room assessments tailored to your clinical environment and workflow.</p>
             <a href="services/index.html#demos" class="btn btn-outline btn-sm learn-more-link">Learn More</a>
           </div>
 
@@ -146,10 +148,11 @@
             <div class="service-icon-wrap">
               <img src="../Website Assets/Services Icon - Training.png"
                    onerror="this.parentElement.innerHTML='<div class=\'icon-fallback\'>🎓</div>'"
-                   alt="" aria-hidden="true" class="service-icon">
+                   alt="" aria-hidden="true" class="service-icon"
+                   data-edit="home.services.tile2.icon" data-edit-label="Training icon" data-edit-type="image">
             </div>
-            <h3>Installation &amp; Training</h3>
-            <p>Professional installation and setup, followed by hands-on training to get the most from your microscope.</p>
+            <h3 data-edit="home.services.tile2.title" data-edit-label="Training title">Installation &amp; Training</h3>
+            <p data-edit="home.services.tile2.desc" data-edit-label="Training description">Professional installation and setup, followed by hands-on training to get the most from your microscope.</p>
             <a href="services/index.html#install" class="btn btn-outline btn-sm learn-more-link">Learn More</a>
           </div>
 
@@ -157,10 +160,11 @@
             <div class="service-icon-wrap">
               <img src="../Website Assets/Services Icon - Servicing.png"
                    onerror="this.parentElement.innerHTML='<div class=\'icon-fallback\'>🔧</div>'"
-                   alt="" aria-hidden="true" class="service-icon">
+                   alt="" aria-hidden="true" class="service-icon"
+                   data-edit="home.services.tile3.icon" data-edit-label="Servicing icon" data-edit-type="image">
             </div>
-            <h3>Servicing &amp; Aftercare</h3>
-            <p>Ongoing maintenance, technical support and camera integration to keep your equipment performing optimally.</p>
+            <h3 data-edit="home.services.tile3.title" data-edit-label="Servicing title">Servicing &amp; Aftercare</h3>
+            <p data-edit="home.services.tile3.desc" data-edit-label="Servicing description">Ongoing maintenance, technical support and camera integration to keep your equipment performing optimally.</p>
             <a href="services/index.html#servicing" class="btn btn-outline btn-sm learn-more-link">Learn More</a>
           </div>
 
@@ -168,10 +172,11 @@
             <div class="service-icon-wrap">
               <img src="../Website Assets/Services Icon - Education.png"
                    onerror="this.parentElement.innerHTML='<div class=\'icon-fallback\'>🏫</div>'"
-                   alt="" aria-hidden="true" class="service-icon">
+                   alt="" aria-hidden="true" class="service-icon"
+                   data-edit="home.services.tile4.icon" data-edit-label="Education icon" data-edit-type="image">
             </div>
-            <h3>Education &amp; Institutions</h3>
-            <p>Specialist support for universities, training centres and hospital departments incorporating microscopy.</p>
+            <h3 data-edit="home.services.tile4.title" data-edit-label="Education title">Education &amp; Institutions</h3>
+            <p data-edit="home.services.tile4.desc" data-edit-label="Education description">Specialist support for universities, training centres and hospital departments incorporating microscopy.</p>
             <a href="services/index.html#education" class="btn btn-outline btn-sm learn-more-link">Learn More</a>
           </div>
 
@@ -183,9 +188,9 @@
     <section class="products-section section-pad" id="products" aria-labelledby="products-heading">
       <div class="container">
         <div class="text-center section-intro fade-in">
-          <span class="eyebrow">Featured Products</span>
-          <h2 id="products-heading">Dental Microscopes &amp; Equipment</h2>
-          <p>We supply market-leading microscopes from Alltion, KAPS and Xpedent — tailored to your budget and clinical requirements.</p>
+          <span class="eyebrow" data-edit="home.products.eyebrow" data-edit-label="Products eyebrow">Featured Products</span>
+          <h2 id="products-heading" data-edit="home.products.heading" data-edit-label="Products heading">Dental Microscopes &amp; Equipment</h2>
+          <p data-edit="home.products.desc" data-edit-label="Products description">We supply market-leading microscopes from Alltion, KAPS and Xpedent — tailored to your budget and clinical requirements.</p>
         </div>
         <div class="products-grid">
 
@@ -276,12 +281,12 @@
     <section class="about-section section-pad" id="intro" aria-labelledby="about-heading">
       <div class="container about-inner">
         <div class="about-copy fade-in">
-          <span class="eyebrow">About KH Dentascope UK</span>
-          <h2 id="about-heading">A Personal Approach to Dental Microscopy</h2>
-          <p>
+          <span class="eyebrow" data-edit="home.about.eyebrow" data-edit-label="About eyebrow">About KH Dentascope UK</span>
+          <h2 id="about-heading" data-edit="home.about.heading" data-edit-label="About heading">A Personal Approach to Dental Microscopy</h2>
+          <p data-edit="home.about.p1" data-edit-label="About paragraph 1">
             KH Dentascope UK was founded on a simple principle: dental professionals deserve expert, honest advice — not a corporate sales pitch. With over 25&nbsp;years of experience in medical and dental sales, and extensive NHS and hospital experience, we bring a depth of knowledge that larger suppliers simply can't match on a personal level.
           </p>
-          <p style="margin-top:1rem;">
+          <p style="margin-top:1rem;" data-edit="home.about.p2" data-edit-label="About paragraph 2">
             We work with general dental practices, specialist endodontic clinics, hospitals, universities and training centres across the UK, partnering with leading brands including Alltion, KAPS and Xpedent to deliver the right solution for every budget and clinical need.
           </p>
           <a href="about/index.html" class="btn btn-primary" style="margin-top:1.75rem;">Learn More About Us</a>
@@ -312,8 +317,8 @@
     <!-- ══ CTA BANNER ════════════════════════════════════════ -->
     <section class="cta-banner section-pad" aria-label="Call to action">
       <div class="container text-center fade-in">
-        <h2>Ready to find the right microscope for your practice?</h2>
-        <p style="margin:1rem auto;max-width:520px;color:rgba(255,255,255,0.8);">
+        <h2 data-edit="home.cta.heading" data-edit-label="CTA heading">Ready to find the right microscope for your practice?</h2>
+        <p style="margin:1rem auto;max-width:520px;color:rgba(255,255,255,0.8);" data-edit="home.cta.desc" data-edit-label="CTA description">
           Get in touch for impartial advice, a free room assessment, or to arrange an on-site demonstration.
         </p>
         <a href="contact/index.html" class="btn" style="background:#fff;color:var(--colour-primary);margin-top:0.75rem;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
